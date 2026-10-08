@@ -1,0 +1,161 @@
+Project EduBank {
+  database_type: "MongoDB"
+  Note: "Modelo lógico de datos para EduBank. Las relaciones representan referencias lógicas entre documentos MongoDB."
+}
+
+Table usuarios {
+  _id varchar [pk]
+  nombre varchar [not null]
+  apellido varchar
+  email varchar [not null, unique]
+  password_hash varchar
+  rol varchar [not null, note: "admin | docente"]
+  activo boolean [not null, default: true]
+  createdAt datetime
+  updatedAt datetime
+}
+
+Table asignaturas {
+  _id varchar [pk]
+  nombre varchar [not null, unique]
+  descripcion text
+  activo boolean [not null, default: true]
+  createdAt datetime
+  updatedAt datetime
+}
+
+Table bloques {
+  _id varchar [pk]
+  asignatura_id varchar [not null]
+  nombre varchar [not null]
+  descripcion text
+  orden int
+  activo boolean [not null, default: true]
+}
+
+Table temas {
+  _id varchar [pk]
+  bloque_id varchar [not null]
+  nombre varchar [not null]
+  descripcion text
+  orden int
+  activo boolean [not null, default: true]
+}
+
+Table preguntas {
+  _id varchar [pk]
+  usuario_id varchar [not null]
+  asignatura_id varchar [not null]
+  bloque_id varchar
+  tema_id varchar
+  tipo varchar [not null, note: "seleccion_unica | verdadero_falso | practica | correcto_incorrecto"]
+  enunciado text [not null]
+  respuesta_correcta text
+  puntuacion decimal [not null, default: 1.00]
+  imagen_url varchar
+  explicacion text
+  dificultad varchar [note: "facil | media | dificil"]
+  activo boolean [not null, default: true]
+  createdAt datetime
+  updatedAt datetime
+}
+
+Table opciones {
+  _id varchar [pk]
+  pregunta_id varchar [not null]
+  texto text [not null]
+  es_correcta boolean [not null, default: false]
+  orden int [not null]
+}
+
+Table encabezados {
+  _id varchar [pk]
+  usuario_id varchar [not null]
+  centro_educativo varchar [not null]
+  asignatura_id varchar [not null]
+  parcial varchar [not null]
+  valor_total decimal [not null]
+  fecha date [not null]
+  nombre_estudiante varchar
+  grado varchar
+  seccion varchar
+  periodo_academico varchar
+  instrucciones text
+  createdAt datetime
+  updatedAt datetime
+}
+
+Table examenes {
+  _id varchar [pk]
+  usuario_id varchar [not null]
+  encabezado_id varchar [not null]
+  titulo varchar [not null]
+  descripcion text
+  estado varchar [not null, note: "borrador | generado | aplicado | archivado"]
+  cantidad_preguntas int [not null]
+  puntuacion_total decimal [not null]
+  fecha_generacion datetime
+  pdf_url varchar
+  createdAt datetime
+  updatedAt datetime
+}
+
+Table examen_preguntas {
+  _id varchar [pk]
+  examen_id varchar [not null]
+  pregunta_id varchar [not null]
+  numero int [not null]
+  puntuacion decimal [not null]
+  orden int [not null]
+}
+
+Ref: asignaturas._id < bloques.asignatura_id
+Ref: bloques._id < temas.bloque_id
+Ref: usuarios._id < preguntas.usuario_id
+Ref: asignaturas._id < preguntas.asignatura_id
+Ref: bloques._id < preguntas.bloque_id
+Ref: temas._id < preguntas.tema_id
+Ref: preguntas._id < opciones.pregunta_id
+Ref: usuarios._id < encabezados.usuario_id
+Ref: asignaturas._id < encabezados.asignatura_id
+Ref: usuarios._id < examenes.usuario_id
+Ref: encabezados._id < examenes.encabezado_id
+Ref: examenes._id < examen_preguntas.examen_id
+Ref: preguntas._id < examen_preguntas.pregunta_id
+
+TableIndex bloques {
+  asignatura_id [name: "idx_bloques_asignatura"]
+}
+
+TableIndex temas {
+  bloque_id [name: "idx_temas_bloque"]
+}
+
+TableIndex preguntas {
+  usuario_id [name: "idx_preguntas_usuario"]
+  asignatura_id [name: "idx_preguntas_asignatura"]
+  bloque_id [name: "idx_preguntas_bloque"]
+  tema_id [name: "idx_preguntas_tema"]
+  tipo [name: "idx_preguntas_tipo"]
+  activo [name: "idx_preguntas_activo"]
+}
+
+TableIndex opciones {
+  pregunta_id [name: "idx_opciones_pregunta"]
+}
+
+TableIndex encabezados {
+  usuario_id [name: "idx_encabezados_usuario"]
+  asignatura_id [name: "idx_encabezados_asignatura"]
+}
+
+TableIndex examenes {
+  usuario_id [name: "idx_examenes_usuario"]
+  encabezado_id [name: "idx_examenes_encabezado"]
+  estado [name: "idx_examenes_estado"]
+}
+
+TableIndex examen_preguntas {
+  examen_id [name: "idx_examen_preguntas_examen"]
+  pregunta_id [name: "idx_examen_preguntas_pregunta"]
+}
