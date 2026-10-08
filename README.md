@@ -110,21 +110,6 @@ Si utilizas **MongoDB Atlas**, coloca la cadena de conexión correspondiente:
 MONGODB_URI=mongodb+srv://usuario:password@cluster.mongodb.net/edubank
 ```
 
-### Importante
-
-El archivo `.env` contiene información sensible y **no debe subirse al repositorio**.
-
-Utiliza `.env.example` para documentar las variables necesarias:
-
-```env
-PORT=
-MONGODB_URI=
-JWT_SECRET=
-NODE_ENV=
-```
-
----
-
 ## ▶️ Ejecución del proyecto
 
 Para ejecutar el servidor en modo desarrollo:
