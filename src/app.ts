@@ -10,13 +10,16 @@ import bloquesRoutes from "./routes/bloques.js";
 import categoriasRoutes from "./routes/categorias.js";
 import encabezadoRoutes from "./routes/encabezados.js";
 import evaluacionesRoutes from "./routes/evaluaciones.js";
+import loginRoutes from "./routes/login.js";
 import usuariosRoutes from "./routes/usuarios.js";
 import pdfExamenesRoutes from "./routes/pdf-examenes.js";
 import preguntasRoutes from "./routes/preguntas.js";
 import preguntasPorEvaluacionRoutes from "./routes/preguntas-por-evaluacion.js";
+import preguntasPorTemaRoutes from "./routes/preguntas-por-tema.js";
 import reportesRoutes from "./routes/reportes.js";
 import respuestasRoutes from "./routes/respuestas.js";
 import temasRoutes from "./routes/temas.js";
+import temasPorBloqueRoutes from "./routes/temas-por-bloque.js";
 
 const app = express();
 
@@ -52,18 +55,21 @@ app.use(express.urlencoded({ extended: true }));
 
 /*Rutas de la aplicación*/
 app.use("/api/auth", authRoutes);
+app.use("/api/archivos", archivosRoutes);
 app.use("/api/asignaturas", asignaturasRoutes);
 app.use("/api/bloques", bloquesRoutes);
+app.use("/api/bloques/:id/temas", temasPorBloqueRoutes);
 app.use("/api/categorias", categoriasRoutes);
 app.use("/api/encabezado", encabezadoRoutes);
 app.use("/api/evaluaciones", evaluacionesRoutes);
 app.use("/api/evaluaciones/:id/preguntas", preguntasPorEvaluacionRoutes);
+app.use("/api/login", loginRoutes);
 app.use("/api/preguntas", preguntasRoutes);
+app.use("/api/pdf-examenes", pdfExamenesRoutes);
+app.use("/api/preguntas/:id/temas", preguntasPorTemaRoutes);
 app.use("/api/respuestas", respuestasRoutes);
+app.use("/api/reportes", reportesRoutes);
 app.use("/api/temas", temasRoutes);
 app.use("/api/usuarios", usuariosRoutes);
-app.use("/api/pdf-examenes", pdfExamenesRoutes);
-app.use("/api/archivos", archivosRoutes);
-app.use("/api/reportes", reportesRoutes);
 
 export default app;

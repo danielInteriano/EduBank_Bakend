@@ -10,6 +10,7 @@ Table usuarios {
   email varchar [not null, unique]
   password_hash varchar
   rol varchar [not null, note: "admin | docente"]
+  imagen_url  varchar [ default:""]
   activo boolean [not null, default: true]
   createdAt datetime
   updatedAt datetime
