@@ -1,9 +1,12 @@
 import { response } from "express";
 import Usuario from "../models/usuario.js";
-import bcrypt from "bcryptjs";
 import { generarJWT } from "../helpers/generar-jwt.js";
 import { googleVerify } from "../helpers/google-verify.js";
-import type { iUsuarioDB } from "../interfaces/usuario.interface.js";
+import {
+  buscarUsuarioPorEmail,
+  buscarUsuarioPorId,
+  validarPassword,
+} from "../services/auth.service.js";
 
 //función para login de un usuario
 export const login = async (req: any, res = response) => {
@@ -11,9 +14,7 @@ export const login = async (req: any, res = response) => {
 
   try {
     // Verificando si el email existe
-    const usuario = (await Usuario.findOne({ email }).select(
-      "+password_hash",
-    )) as iUsuarioDB | null;
+    const usuario = await buscarUsuarioPorEmail(email);
     if (!usuario) {
       return res.status(404).json({
         ok: false,
@@ -22,10 +23,7 @@ export const login = async (req: any, res = response) => {
     }
 
     // Verificar password
-    const validPassword: boolean = bcrypt.compareSync(
-      password,
-      usuario.password_hash,
-    );
+    const validPassword = await validarPassword(password);
     if (!validPassword) {
       return res.status(404).json({
         ok: false,
@@ -62,7 +60,7 @@ export const googleSignIn = async (req: any, res = response) => {
       });
     }
 
-    let usuarioDB = await Usuario.findOne({ email });
+    let usuarioDB = await buscarUsuarioPorEmail(email);
     let usuario;
 
     //Verificando si usuarioDB existe
@@ -108,7 +106,7 @@ export const renewToken = async (req: any, res = response) => {
   const token = await generarJWT(id);
 
   //obtener el usuario
-  const usuario = await Usuario.findById(id);
+  const usuario = await buscarUsuarioPorId(id);
 
   res.json({
     ok: true,

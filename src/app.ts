@@ -3,7 +3,7 @@ import cors, { type CorsOptions } from "cors";
 import fileUpload from "express-fileupload";
 import os from "os";
 import path from "path";
-import authRoutes from "./routes/auth.js";
+import { router as authRouter } from "./routes/auth.js";
 import archivosRoutes from "./routes/archivos.js";
 import asignaturasRoutes from "./routes/asignaturas.js";
 import bloquesRoutes from "./routes/bloques.js";
@@ -54,7 +54,7 @@ app.use(express.static(path.resolve("public")));
 app.use(express.urlencoded({ extended: true }));
 
 /*Rutas de la aplicación*/
-app.use("/api/auth", authRoutes);
+app.use("/api/auth", authRouter);
 app.use("/api/archivos", archivosRoutes);
 app.use("/api/asignaturas", asignaturasRoutes);
 app.use("/api/bloques", bloquesRoutes);
