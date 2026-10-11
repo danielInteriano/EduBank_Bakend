@@ -6,7 +6,7 @@ import {
   buscarUsuarioPorEmail,
   buscarUsuarioPorId,
   validarPassword,
-} from "../services/auth.service.js";
+} from "../services/usuario.service.js";
 
 //función para login de un usuario
 export const login = async (req: any, res = response) => {

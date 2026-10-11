@@ -1,7 +1,11 @@
 //Ruta: /api/login
 
 import { Router } from "express";
-import { login, googleSignIn, renewToken } from "../controllers/auth.js";
+import {
+  login,
+  googleSignIn,
+  renewToken,
+} from "../controllers/auth.controller.js";
 import { check } from "express-validator";
 import { validarCampos } from "../middlewares/validar-campos.middleware.js";
 import { validarJWT } from "../middlewares/validar-jwt.middleware.js";
