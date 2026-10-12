@@ -72,5 +72,12 @@ export const actualizandoCampos = async (
 
 //Eliminar un usuario
 export const eliminar = async (id: string) => {
-  Usuario.findByIdAndDelete(id);
+  Usuario.findByIdAndUpdate(
+    id,
+    { activo: false },
+    {
+      new: true,
+      runValidators: true,
+    },
+  );
 };

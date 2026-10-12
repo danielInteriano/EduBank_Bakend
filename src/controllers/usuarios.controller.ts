@@ -1,6 +1,5 @@
-import { type Response, type Request, type NextFunction } from "express";
+import { type Response, type Request } from "express";
 import Usuario from "../models/usuario.js";
-import bcrypt from "bcryptjs";
 import { generarJWT } from "../helpers/generar-jwt.js";
 import {
   buscarUsuarioPorEmail,
@@ -230,7 +229,7 @@ export const eliminarUsuario = async (req: Request, res: Response) => {
       });
     }
 
-    //Si el usuario existe, se elimina
+    //Si el usuario existe, se cambia su estado "activo" a false
     await eliminar(id);
     return res.status(200).json({
       ok: true,
