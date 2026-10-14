@@ -1,5 +1,5 @@
 import { type Response, type Request } from "express";
-import Usuario from "../models/usuario.js";
+import Usuario from "../models/usuario.model.js";
 import { generarJWT } from "../helpers/generar-jwt.js";
 import {
   buscarUsuarioPorEmail,
@@ -10,6 +10,7 @@ import {
   eliminar,
 } from "../services/usuario.service.js";
 import { encriptarPassword } from "../helpers/encriptar.js";
+import { catchError } from "../services/catch-error.service.js";
 
 //función para obtener un usuario
 export const getUsuario = async (req: Request, res: Response) => {
@@ -128,7 +129,7 @@ export const crearUsuario = async (req: Request, res: Response) => {
     const existeEmail = await buscarUsuarioPorEmail(email);
 
     if (existeEmail) {
-      res.status(400).json({
+      return res.status(400).json({
         ok: false,
         msg: "El email ya está registrado",
       });
@@ -146,10 +147,7 @@ export const crearUsuario = async (req: Request, res: Response) => {
       token,
     });
   } catch (error) {
-    return res.status(500).json({
-      ok: false,
-      msg: "Error interno en el servidor",
-    });
+    catchError();
   }
 };
 
@@ -201,10 +199,7 @@ export const actualizarUsuario = async (req: Request, res: Response) => {
       usuario: usuarioActualizado,
     });
   } catch (error) {
-    return res.status(500).json({
-      ok: false,
-      msg: "Error interno en el servidor",
-    });
+    catchError();
   }
 };
 
@@ -236,9 +231,6 @@ export const eliminarUsuario = async (req: Request, res: Response) => {
       msg: "Usuario eliminado exitosamente.",
     });
   } catch (error) {
-    return res.status(500).json({
-      ok: false,
-      msg: "Error interno en el servidor",
-    });
+    catchError();
   }
 };

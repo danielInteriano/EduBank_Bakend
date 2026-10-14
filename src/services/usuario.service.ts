@@ -1,5 +1,5 @@
 import { encriptarPassword } from "../helpers/encriptar.js";
-import Usuario from "../models/usuario.js";
+import Usuario from "../models/usuario.model.js";
 import bcrypt from "bcryptjs";
 
 //Buscar un usuario por email

@@ -1,3 +1,5 @@
+//Ruta: /api/usuarios
+
 import { Router } from "express";
 import { check } from "express-validator";
 import { validarCampos } from "../middlewares/validar-campos.middleware.js";
@@ -10,48 +12,74 @@ import {
   getUsuarioById,
   getUsuarios,
 } from "../controllers/usuarios.controller.js";
-import { actualizandoCampos } from "../services/usuario.service.js";
+import { validarRol } from "../middlewares/validar-rol.middleware.js";
 
-export const router = Router();
-
-/*Rutas de usuarios*/
+export const usuariosRouter = Router();
 
 //Obtener un usuario por su email
-router.get("/:email", validarJWT, getUsuario);
+usuariosRouter.get("/:email", validarJWT, getUsuario);
 
 //Obtener un usuario por su id
-router.get("/usuario/:id", validarJWT, getUsuarioById);
+usuariosRouter.get("/usuario/:id", validarJWT, getUsuarioById);
 
 //Obtener todos los usuarios, de 7 en 7 para paginación
-router.get("/", validarJWT, getUsuarios);
+usuariosRouter.get("/", validarJWT, getUsuarios);
 
 //Crear un usuario
-router.post(
+usuariosRouter.post(
   "/",
+  validarCampos,
+  validarRol("admin"),
   [
-    check("nombre", "El nombre es obligatorio").notEmpty(),
-    check("apellido", "El apellido es obligatorio").notEmpty(),
+    check("nombre", "El nombre es obligatorio")
+      .notEmpty()
+      .withMessage("El nombre no puede estar vacío.")
+      .trim()
+      .matches(/.*[a-zA-ZáéíóúÁÉÍÓÚñÑ].*/)
+      .withMessage("El nombre debe contener solo letras."),
+    check("apellido", "El apellido es obligatorio")
+      .notEmpty()
+      .withMessage("El nombre no puede estar vacío.")
+      .trim()
+      .matches(/.*[a-zA-ZáéíóúÁÉÍÓÚñÑ].*/)
+      .withMessage("El nombre debe contener solo letras."),
     check("email", "El email no es válido").isEmail(),
-    check("password_hash", "La contraseña es obligatoria").notEmpty(),
+    check("password_hash", "La contraseña es obligatoria")
+      .notEmpty()
+      .withMessage("El nombre no puede estar vacío.")
+      .trim(),
     check("imagen_url", "Seleccione una imagen").notEmpty(),
-    validarCampos,
   ],
   crearUsuario,
 );
 
 //Actualizar ciertos atributos de un usuario
-router.patch(
+usuariosRouter.patch(
   "/:id",
+  validarJWT,
+  validarRol("admin"),
   [
-    validarJWT,
-    check("nombre", "El nombre es obligatorio").notEmpty(),
-    check("apellido", "El apellido es obligatorio").notEmpty(),
+    check("nombre", "El nombre es obligatorio")
+      .notEmpty()
+      .withMessage("El nombre no puede estar vacío.")
+      .trim()
+      .matches(/.*[a-zA-ZáéíóúÁÉÍÓÚñÑ].*/)
+      .withMessage("El nombre debe contener solo letras."),
+    check("apellido", "El apellido es obligatorio")
+      .notEmpty()
+      .withMessage("El nombre no puede estar vacío.")
+      .trim()
+      .matches(/.*[a-zA-ZáéíóúÁÉÍÓÚñÑ].*/)
+      .withMessage("El nombre debe contener solo letras."),
     check("email", "El email no es válido").isEmail(),
-    check("password_hash", "La contraseña es obligatoria").notEmpty(),
+    check("password_hash", "La contraseña es obligatoria")
+      .notEmpty()
+      .withMessage("El nombre no puede estar vacío.")
+      .trim(),
     check("imagen_url", "Seleccione una imagen").notEmpty(),
   ],
   actualizarUsuario,
 );
 
 //Eliminar un usuario
-router.delete("/:id", validarJWT, eliminarUsuario);
+usuariosRouter.delete("/:id", validarJWT, validarRol("admin"), eliminarUsuario);

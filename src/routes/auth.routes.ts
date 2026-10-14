@@ -10,10 +10,10 @@ import { check } from "express-validator";
 import { validarCampos } from "../middlewares/validar-campos.middleware.js";
 import { validarJWT } from "../middlewares/validar-jwt.middleware.js";
 
-export const router = Router();
+export const authRouter = Router();
 
 //Iniciar sesión con usuario y contraseña
-router.post(
+authRouter.post(
   "/",
   [
     check("email", "El email es obligatorio").isEmail(),
@@ -24,11 +24,11 @@ router.post(
 );
 
 //Iniciar sesión con usuario de google
-router.post(
+authRouter.post(
   "/google",
   [check("token", "El token es necesario.").not().isEmpty(), validarCampos],
   googleSignIn,
 );
 
 //Renovar el token de autenticación
-router.get("/renew", validarJWT, renewToken);
+authRouter.get("/renew", validarJWT, renewToken);

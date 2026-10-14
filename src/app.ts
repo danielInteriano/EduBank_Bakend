@@ -3,15 +3,14 @@ import cors, { type CorsOptions } from "cors";
 import fileUpload from "express-fileupload";
 import os from "os";
 import path from "path";
-import { router as authRouter } from "./routes/auth.routes.js";
+import { authRouter } from "./routes/auth.routes.js";
 import archivosRoutes from "./routes/archivos.js";
-import asignaturasRoutes from "./routes/asignaturas.js";
+import { asignaturasRouter } from "./routes/asignaturas.routes.js";
 import bloquesRoutes from "./routes/bloques.js";
 import categoriasRoutes from "./routes/categorias.js";
 import encabezadoRoutes from "./routes/encabezados.js";
 import evaluacionesRoutes from "./routes/evaluaciones.js";
 import loginRoutes from "./routes/login.js";
-import usuariosRoutes from "./routes/usuarios.routes.js";
 import pdfExamenesRoutes from "./routes/pdf-examenes.js";
 import preguntasRoutes from "./routes/preguntas.js";
 import preguntasPorEvaluacionRoutes from "./routes/preguntas-por-evaluacion.js";
@@ -20,6 +19,7 @@ import reportesRoutes from "./routes/reportes.js";
 import respuestasRoutes from "./routes/respuestas.js";
 import temasRoutes from "./routes/temas.js";
 import temasPorBloqueRoutes from "./routes/temas-por-bloque.js";
+import { usuariosRouter } from "./routes/usuarios.routes.js";
 
 const app = express();
 
@@ -56,7 +56,7 @@ app.use(express.urlencoded({ extended: true }));
 /*Rutas de la aplicación*/
 app.use("/api/auth", authRouter);
 app.use("/api/archivos", archivosRoutes);
-app.use("/api/asignaturas", asignaturasRoutes);
+app.use("/api/asignaturas", asignaturasRouter);
 app.use("/api/bloques", bloquesRoutes);
 app.use("/api/bloques/:id/temas", temasPorBloqueRoutes);
 app.use("/api/categorias", categoriasRoutes);
@@ -70,6 +70,6 @@ app.use("/api/preguntas/:id/temas", preguntasPorTemaRoutes);
 app.use("/api/respuestas", respuestasRoutes);
 app.use("/api/reportes", reportesRoutes);
 app.use("/api/temas", temasRoutes);
-app.use("/api/usuarios", usuariosRoutes);
+app.use("/api/usuarios", usuariosRouter);
 
 export default app;
