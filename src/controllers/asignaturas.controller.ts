@@ -36,7 +36,9 @@ export const getAsignatura = async (req: Request, res: Response) => {
       ok: true,
       asignatura,
     });
-  } catch (error) {}
+  } catch (error) {
+    catchError();
+  }
 };
 
 //función para obtener todas las asignaturas
