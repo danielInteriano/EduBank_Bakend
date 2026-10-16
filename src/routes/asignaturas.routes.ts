@@ -34,7 +34,8 @@ asignaturasRouter.post(
   validarJWT,
   validarRol("admin"),
   [
-    check("nombre", "El nombre es obligatorio.")
+    check("nombre")
+      .withMessage("El nombre es obligatorio.")
       .isString()
       .withMessage("El nombre debe ser texto.")
       .trim()
@@ -51,6 +52,11 @@ asignaturasRouter.post(
       .withMessage("La descripción no puede estar vacía.")
       .isLength({ max: 300 })
       .withMessage("La descripción no puede superar los 300 caracteres."),
+    check("orden")
+      .notEmpty()
+      .withMessage("La orden no puede estar vacío.")
+      .isNumeric()
+      .withMessage("El orden debe ser un número"),
   ],
   crearAsignatura,
 );
