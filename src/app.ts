@@ -17,8 +17,7 @@ import preguntasPorEvaluacionRoutes from "./routes/preguntas-por-evaluacion.js";
 import preguntasPorTemaRoutes from "./routes/preguntas-por-tema.js";
 import reportesRoutes from "./routes/reportes.js";
 import respuestasRoutes from "./routes/respuestas.js";
-import temasRoutes from "./routes/temas.js";
-import temasPorBloqueRoutes from "./routes/temas-por-bloque.js";
+import { temasRouter } from "./routes/temas.routes.js";
 import { usuariosRouter } from "./routes/usuarios.routes.js";
 
 const app = express();
@@ -69,7 +68,7 @@ app.use("/api/pdf-examenes", pdfExamenesRoutes);
 app.use("/api/preguntas/:id/temas", preguntasPorTemaRoutes);
 app.use("/api/respuestas", respuestasRoutes);
 app.use("/api/reportes", reportesRoutes);
-app.use("/api/temas", temasRoutes);
+app.use("/api/temas", temasRouter);
 app.use("/api/usuarios", usuariosRouter);
 
 export default app;
