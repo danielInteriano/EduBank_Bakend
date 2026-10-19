@@ -1,3 +1,4 @@
+import type { Types } from "mongoose";
 import Signature from "../models/asignatura.model.js";
 
 //obtener una asignatura

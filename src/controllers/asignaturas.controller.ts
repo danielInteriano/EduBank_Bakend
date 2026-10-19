@@ -24,7 +24,7 @@ export const getAsignatura = async (req: Request, res: Response) => {
   }
 
   try {
-    const asignatura = obtenerAsignaturaPorId(id);
+    const asignatura = await obtenerAsignaturaPorId(id);
     if (!asignatura) {
       return res.status(404).json({
         ok: false,
