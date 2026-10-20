@@ -7,6 +7,7 @@ import {
   actualizarTema,
   crearTema,
   eliminarTema,
+  getPreguntasPorTema,
   getTema,
   getTemas,
 } from "../controllers/tema.controller.js";
@@ -18,6 +19,9 @@ temasRouter.get("/:id", validarJWT, getTema);
 
 //obtener todos los temas
 temasRouter.get("/", validarJWT, getTemas);
+
+//obtener todas las preguntas de un tema
+temasRouter.get("/:idTema/preguntas", validarJWT, getPreguntasPorTema);
 
 //crear un tema
 temasRouter.post(

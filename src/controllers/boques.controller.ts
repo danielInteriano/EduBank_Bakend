@@ -8,6 +8,7 @@ import {
   obtenerBloquePorNombre,
   actualizandoCamposBloque,
   eliminar,
+  obtenerTemasPorBloque,
 } from "../services/bloques.service.js";
 import mongoose from "mongoose";
 import { obtenerAsignaturaPorId } from "../services/asignaturas.service.js";
@@ -59,6 +60,30 @@ export const getBloques = async (req: Request, res: Response) => {
   }
 };
 
+//funcion para obtener todos los temas de un bloque
+export const getTemasPorBloque = async (req: Request, res: Response) => {
+  try {
+    const idBloque = req.params.idBloque;
+
+    //validando el id del bloque recibido
+    if (typeof idBloque !== "string" || !idBloque.trim()) {
+      return res.status(401).json({
+        ok: false,
+        msg: "El id del bloque no es válido.",
+      });
+    }
+
+    const temas = await obtenerTemasPorBloque(idBloque);
+
+    return res.status(200).json({
+      ok: true,
+      totalTemas: temas.length,
+      temas,
+    });
+  } catch (error) {
+    catchError();
+  }
+};
 //función para crear un bloque
 export const crearBloque = async (req: Request, res: Response) => {
   const { idAsignatura, nombre } = req.body;

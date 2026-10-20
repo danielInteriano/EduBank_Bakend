@@ -9,6 +9,7 @@ import {
   obtenerTemaPorNombre,
   obtenerTemas,
   eliminar,
+  obtenerPreguntasPorTema,
 } from "../services/temas.service.js";
 import TTema from "../models/tema.model.js";
 
@@ -53,6 +54,31 @@ export const getTemas = async (req: Request, res: Response) => {
       ok: true,
       temas,
       totalTemas,
+    });
+  } catch (error) {
+    catchError();
+  }
+};
+
+//función para obtener todas las preguntas de un tema
+export const getPreguntasPorTema = async (req: Request, res: Response) => {
+  try {
+    const idTema = req.params.idTema;
+
+    //validando el id del bloque recibido
+    if (typeof idTema !== "string" || !idTema.trim()) {
+      return res.status(401).json({
+        ok: false,
+        msg: "El id del bloque no es válido.",
+      });
+    }
+
+    const preguntas = await obtenerPreguntasPorTema(idTema);
+
+    return res.status(200).json({
+      ok: true,
+      totalPreguntas: preguntas.length,
+      preguntas,
     });
   } catch (error) {
     catchError();

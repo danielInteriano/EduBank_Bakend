@@ -1,4 +1,7 @@
+import { Types } from "mongoose";
 import BBloque from "../models/bloque.model.js";
+import { ManejarError } from "../classes/manejo-error.class.js";
+import TTema from "../models/tema.model.js";
 
 //obtener un bloque
 export const obtenerBloquePorId = async (id: string) => {
@@ -20,6 +23,34 @@ export const contarBloques = async () => {
 //obtener bloque por nombre
 export const obtenerBloquePorNombre = async (nombre: string) => {
   return BBloque.findOne({ nombre: nombre.trim() });
+};
+
+//obtener todos los temas de un bloque
+//obtener todos los temas de un bloque
+export const obtenerTemasPorBloque = async (idBloque: string) => {
+  // Validar el ObjectId
+  if (!Types.ObjectId.isValid(idBloque)) {
+    throw new ManejarError("El identificador del bloque no es válido", 401);
+  }
+
+  const bloqueId = new Types.ObjectId(idBloque);
+
+  // Verificar que el bloque exista
+  const bloqueExiste = await BBloque.exists({
+    _id: bloqueId,
+  });
+
+  if (!bloqueExiste) {
+    throw new ManejarError("El bloque no existe", 404);
+  }
+
+  // Obtener los temas activos del bloque
+  const temas = await TTema.find({
+    bloque_id: bloqueId,
+    activo: true,
+  }).sort({ nombre: 1 });
+
+  return temas;
 };
 
 //actualizar los campos de un bloque

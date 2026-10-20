@@ -8,6 +8,7 @@ import {
   eliminarBloque,
   getBloque,
   getBloques,
+  getTemasPorBloque,
 } from "../controllers/boques.controller.js";
 import { validarRol } from "../middlewares/validar-rol.middleware.js";
 import { check } from "express-validator";
@@ -19,6 +20,9 @@ bloquesRouter.get("/:id", validarJWT, getBloque);
 
 //obtener todos los bloques
 bloquesRouter.get("/", validarJWT, getBloques);
+
+//obtener todos los temas de un bloque
+bloquesRouter.get("/:idBloque/temas", validarJWT, getTemasPorBloque);
 
 //crear un bloque
 bloquesRouter.post(
