@@ -2,6 +2,7 @@ import { Router } from "express";
 import { validarJWT } from "../middlewares/validar-jwt.middleware.js";
 import { validarRol } from "../middlewares/validar-rol.middleware.js";
 import {
+  agregarOpcion,
   getPregunta,
   getPreguntasSeleccionadas,
 } from "../controllers/preguntas.controller.js";
@@ -11,6 +12,7 @@ import {
   eliminarAsignatura,
 } from "../controllers/asignaturas.controller.js";
 import { check } from "express-validator";
+import { agregarOpcionesAPregunta } from "../services/preguntas.service.js";
 
 export const preguntasRouter = Router();
 
@@ -108,4 +110,12 @@ preguntasRouter.delete(
   validarJWT,
   validarRol("admin"),
   eliminarAsignatura,
+);
+
+//agregar opciones a una pregunta del tipo: SELECCION_UNICA o SELECCION_MULTIPLE
+preguntasRouter.put(
+  "/:idPregunta/opciones",
+  validarJWT,
+  validarRol("admin"),
+  agregarOpcion,
 );

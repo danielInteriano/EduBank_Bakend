@@ -77,7 +77,7 @@ export const getPreguntasPorTema = async (req: Request, res: Response) => {
 
     return res.status(200).json({
       ok: true,
-      totalPreguntas: preguntas.length,
+      totalPreguntas: preguntas?.length ?? 0,
       preguntas,
     });
   } catch (error) {

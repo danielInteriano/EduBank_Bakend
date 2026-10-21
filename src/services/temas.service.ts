@@ -53,7 +53,7 @@ export const obtenerPreguntasPorTema = async (idTema: string) => {
 
     // Obtener todas las preguntas del tema
     const preguntas = await Question.find({
-      tema_id: temaId,
+      tema_id: new Types.ObjectId(idTema),
       activo: true,
     }).sort({ nombre: 1 });
 

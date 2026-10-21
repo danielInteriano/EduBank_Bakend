@@ -6,11 +6,17 @@ import {
   type ActualizarQuestion,
   type crearQuestion,
   type DatosFinales,
+  type Opciones,
 } from "../interfaces/pregunta.interface.js";
 import Signature from "../models/asignatura.model.js";
 import BBloque from "../models/bloque.model.js";
 import Question from "../models/pregunta.model.js";
 import TTema from "../models/tema.model.js";
+import { catchError } from "./catch-error.service.js";
+import { types } from "node:util";
+import { obtenerOpciones } from "../utils/validar-opcion.js";
+import { guardarOpciones } from "../utils/guardar-opciones.js";
+import { response } from "express";
 
 //obtener una pregunta
 export const obtenerPreguntaPorId = async (id: string) => {
@@ -498,4 +504,28 @@ export const eliminar = async (id: string, idUsuario: string) => {
   }
 
   return pregunta;
+};
+
+//agregar una opción a una pregunta de selección única o múltiple
+export const obtenerOpcionesDePregunta = async (
+  idPregunta: string,
+  idUsuario: string,
+) => {
+  try {
+    const opciones = await obtenerOpciones(idPregunta, idUsuario);
+
+    if (opciones.length === 0) {
+      throw new ManejarError("No hay opciones en esta pregunta.", 400);
+    }
+
+    const pregunta = await guardarOpciones(idPregunta, idUsuario, opciones);
+
+    if (!pregunta) {
+      throw new ManejarError("No se envió ninguna pregunta con opciones.", 400);
+    }
+
+    return pregunta;
+  } catch (error) {
+    catchError();
+  }
 };

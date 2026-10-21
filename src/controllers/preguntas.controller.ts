@@ -5,6 +5,7 @@ import {
   crear,
   actualizar,
   eliminar,
+  obtenerOpcionesDePregunta,
 } from "../services/preguntas.service.js";
 import { catchError } from "../services/catch-error.service.js";
 import mongoose, { Types } from "mongoose";
@@ -291,4 +292,29 @@ export const eliminarPregunta = async (req: Request, res: Response) => {
   } catch (error) {
     catchError();
   }
+};
+
+//función para agregar una opción a una pregunta de selección única o múltiple
+export const agregarOpcion = async (req: Request, res: Response) => {
+  try {
+    const idPregunta = req.params.idPregunta;
+    const idUsuario = req.id;
+
+    if (typeof idPregunta !== "string") {
+      throw new ManejarError("ID de pregunta no válido", 400);
+    }
+
+    if (!idUsuario) {
+      throw new ManejarError("Usuario no autenticado", 401);
+    }
+
+    const pregunta = await obtenerOpcionesDePregunta(idPregunta, idUsuario);
+
+    return res.status(200).json({
+      ok: true,
+      msg: "Opción agregada exitosamente.",
+      totalOpciones: pregunta?.opciones?.length,
+      pregunta,
+    });
+  } catch (error) {}
 };
