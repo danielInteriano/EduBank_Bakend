@@ -134,6 +134,7 @@ export const crearAsignatura = async (req: Request, res: Response) => {
 
     return res.status(200).json({
       ok: true,
+      msg: "Asignatura creada exitosamente.",
       asignatura,
     });
   } catch (error) {
@@ -158,7 +159,7 @@ export const actualizarAsignatura = async (req: Request, res: Response) => {
     if (!asignaturaDB) {
       return res.status(404).json({
         ok: false,
-        msg: `La asignatura no esta registrada.`,
+        msg: "La asignatura no esta registrada.",
       });
     }
 

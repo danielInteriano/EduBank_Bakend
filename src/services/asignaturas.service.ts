@@ -1,9 +1,11 @@
-import type { Types } from "mongoose";
+import { Types } from "mongoose";
 import Signature from "../models/asignatura.model.js";
+import { validarId } from "../utils/validar-id.js";
 
 //obtener una asignatura
 export const obtenerAsignaturaPorId = async (id: string) => {
-  const asignatura = await Signature.findById(id);
+  const idAsignatura = validarId(id);
+  const asignatura = await Signature.findById(idAsignatura);
   return asignatura;
 };
 
@@ -55,7 +57,7 @@ export const actualizandoCamposAsignatura = async (
     },
   );
 
-  return camposActualizados;
+  return asignaturaActualizada;
 };
 
 //función para eliminar una asignatura
