@@ -8,7 +8,6 @@ import archivosRoutes from "./routes/archivos.js";
 import { asignaturasRouter } from "./routes/asignaturas.routes.js";
 import { bloquesRouter } from "./routes/bloques.routes.js";
 import categoriasRoutes from "./routes/categorias.js";
-import encabezadoRoutes from "./routes/encabezados.js";
 import evaluacionesRoutes from "./routes/evaluaciones.js";
 import loginRoutes from "./routes/login.js";
 import pdfExamenesRoutes from "./routes/pdf-examenes.js";
@@ -18,6 +17,7 @@ import respuestasRoutes from "./routes/respuestas.js";
 import { temasRouter } from "./routes/temas.routes.js";
 import { usuariosRouter } from "./routes/usuarios.routes.js";
 import { preguntasRouter } from "./routes/preguntas.routes.js";
+import { encabezadosRouter } from "./routes/encabezados.routes.js";
 
 const app = express();
 
@@ -58,11 +58,11 @@ app.use("/api/preguntas", preguntasRouter);
 app.use("/api/bloques", bloquesRouter);
 app.use("/api/temas", temasRouter);
 app.use("/api/usuarios", usuariosRouter);
+app.use("/api/encabezado", encabezadosRouter);
 
 //pendientes de desarrollo
 app.use("/api/archivos", archivosRoutes);
 app.use("/api/categorias", categoriasRoutes);
-app.use("/api/encabezado", encabezadoRoutes);
 app.use("/api/evaluaciones", evaluacionesRoutes);
 app.use("/api/evaluaciones/:id/preguntas", preguntasPorEvaluacionRoutes);
 app.use("/api/login", loginRoutes);

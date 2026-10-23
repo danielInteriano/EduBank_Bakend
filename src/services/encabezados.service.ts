@@ -28,3 +28,19 @@ export const actualizarCampos = async (campos: crearEncabezado) => {
 
   return encabezadoActualizado;
 };
+
+//eliminar un encabezado por su id
+export const eliminar = async (id: string) => {
+  if (!id) {
+    throw new ManejarError("El id es obligatorio para eliminar.", 401);
+  }
+
+  EncabezadoExamen.findByIdAndUpdate(
+    id,
+    { activo: false },
+    {
+      new: true,
+      runValidators: true,
+    },
+  );
+};

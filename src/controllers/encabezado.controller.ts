@@ -2,10 +2,12 @@ import { type Request, type Response } from "express";
 import { ManejarError } from "../classes/manejo-error.class.js";
 import {
   actualizarCampos,
+  eliminar,
   obtenerEncabezado,
 } from "../services/encabezados.service.js";
 import { catchError } from "../services/catch-error.service.js";
 import EncabezadoExamen from "../models/encabezado.model.js";
+import { validarId } from "../utils/validar-id.js";
 
 //función para obtener un encabezado
 export const getEncabezado = async (req: Request, res: Response) => {
@@ -94,6 +96,45 @@ export const actualizarEncabezado = async (req: Request, res: Response) => {
       ok: true,
       msg: "Encabezado actualizado exitosamente",
       encabezadoActualizado,
+    });
+  } catch (error) {
+    catchError();
+  }
+};
+
+//función para eliminar un encabezado cambiando su estado activo a "false"
+export const eliminarEncabezado = async (req: Request, res: Response) => {
+  try {
+    const idEncabezado = req.params.id;
+
+    if (!idEncabezado) {
+      return res
+        .status(401)
+        .json({ ok: false, msg: "El id del encabezado es obligatorio" });
+    }
+
+    if (typeof idEncabezado !== "string" || !idEncabezado.trim()) {
+      return res.status(400).json({
+        ok: false,
+        msg: "El id del encabezado no es válido",
+      });
+    }
+
+    const encontrado = obtenerEncabezado(idEncabezado);
+
+    if (!encontrado) {
+      return res.status(401).json({
+        ok: false,
+        msg: "No existe un encabezado registrado.",
+      });
+    }
+
+    //si el encabezado existe, se cambia su estado "activo" a "false"
+    eliminar(idEncabezado);
+
+    res.status(200).json({
+      ok: true,
+      msg: "Encabezado eliminado exitosamente",
     });
   } catch (error) {
     catchError();
