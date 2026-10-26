@@ -4,20 +4,18 @@ import fileUpload from "express-fileupload";
 import os from "os";
 import path from "path";
 import { authRouter } from "./routes/auth.routes.js";
-import archivosRoutes from "./routes/archivos.js";
 import { asignaturasRouter } from "./routes/asignaturas.routes.js";
+import { preguntasRouter } from "./routes/preguntas.routes.js";
 import { bloquesRouter } from "./routes/bloques.routes.js";
-import categoriasRoutes from "./routes/categorias.js";
-import evaluacionesRoutes from "./routes/evaluaciones.js";
-import loginRoutes from "./routes/login.js";
+import { temasRouter } from "./routes/temas.routes.js";
+import { usuariosRouter } from "./routes/usuarios.routes.js";
+import { encabezadosRouter } from "./routes/encabezados.routes.js";
+import archivosRoutes from "./routes/archivos.js";
 import pdfExamenesRoutes from "./routes/pdf-examenes.js";
 import preguntasPorEvaluacionRoutes from "./routes/preguntas-por-evaluacion.js";
 import reportesRoutes from "./routes/reportes.js";
 import respuestasRoutes from "./routes/respuestas.js";
-import { temasRouter } from "./routes/temas.routes.js";
-import { usuariosRouter } from "./routes/usuarios.routes.js";
-import { preguntasRouter } from "./routes/preguntas.routes.js";
-import { encabezadosRouter } from "./routes/encabezados.routes.js";
+import examenesRouter from "./routes/evaluaciones.js";
 
 const app = express();
 
@@ -59,13 +57,11 @@ app.use("/api/bloques", bloquesRouter);
 app.use("/api/temas", temasRouter);
 app.use("/api/usuarios", usuariosRouter);
 app.use("/api/encabezado", encabezadosRouter);
+app.use("/api/examenes", examenesRouter);
 
 //pendientes de desarrollo
 app.use("/api/archivos", archivosRoutes);
-app.use("/api/categorias", categoriasRoutes);
-app.use("/api/evaluaciones", evaluacionesRoutes);
 app.use("/api/evaluaciones/:id/preguntas", preguntasPorEvaluacionRoutes);
-app.use("/api/login", loginRoutes);
 app.use("/api/pdf-examenes", pdfExamenesRoutes);
 app.use("/api/respuestas", respuestasRoutes);
 app.use("/api/reportes", reportesRoutes);

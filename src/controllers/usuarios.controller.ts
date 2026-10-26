@@ -11,6 +11,7 @@ import {
 } from "../services/usuario.service.js";
 import { encriptarPassword } from "../helpers/encriptar.js";
 import { catchError } from "../services/catch-error.service.js";
+import { ManejarError } from "../classes/manejo-error.class.js";
 
 //función para obtener un usuario
 export const getUsuario = async (req: Request, res: Response) => {
@@ -233,4 +234,13 @@ export const eliminarUsuario = async (req: Request, res: Response) => {
   } catch (error) {
     catchError();
   }
+};
+
+//Método que devuelve el id del usuario autenticado
+export const obtenerIdUsuario = (req: Request): string => {
+  if (!req.id) {
+    throw new ManejarError("Usuario no autenticado", 401);
+  }
+
+  return req.id;
 };

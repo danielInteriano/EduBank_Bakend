@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { Types, type ClientSession } from "mongoose";
 import { ManejarError } from "../classes/manejo-error.class.js";
 import {
   NivelDificultad,
@@ -6,17 +6,16 @@ import {
   type ActualizarQuestion,
   type crearQuestion,
   type DatosFinales,
-  type Opciones,
 } from "../interfaces/pregunta.interface.js";
 import Signature from "../models/asignatura.model.js";
 import BBloque from "../models/bloque.model.js";
 import Question from "../models/pregunta.model.js";
 import TTema from "../models/tema.model.js";
 import { catchError } from "./catch-error.service.js";
-import { types } from "node:util";
 import { obtenerOpciones } from "../utils/validar-opcion.js";
 import { guardarOpciones } from "../utils/guardar-opciones.js";
-import { response } from "express";
+import type { PreguntaSeleccionada } from "../interfaces/examen.interface.js";
+import { validarId } from "../utils/validar-id.js";
 
 //obtener una pregunta
 export const obtenerPreguntaPorId = async (id: string) => {
@@ -528,4 +527,93 @@ export const obtenerOpcionesDePregunta = async (
   } catch (error) {
     catchError();
   }
+};
+
+//función para validar un conjunto de preguntas
+export const validarPreguntas = (preguntas: PreguntaSeleccionada[]): void => {
+  //validando si el arreglo "preguntas" tiene datos
+  if (!Array.isArray(preguntas) || preguntas.length === 0) {
+    throw new ManejarError("Debe seleccionar al menos una pregunta", 400);
+  }
+
+  const ids = preguntas.map((p) => {
+    p.pregunta_id;
+  });
+
+  const ordenes = preguntas.map((p) => {
+    p.orden;
+  });
+
+  //validando si el arreglo "ids" tiene datos válidos
+  if (ids.some((id) => typeof id !== "string")) {
+    throw new ManejarError("Todas las preguntas deben tener un id válido", 400);
+  }
+
+  //validando que no hayan preguntas repetidas
+  if (new Set(ids).size !== ids.length) {
+    throw new ManejarError("No se puede repetir una pregunta.", 400);
+  }
+
+  if (
+    ordenes.some((orden) => !Number.isInteger(orden) || Number(orden) < 1) ||
+    new Set(ordenes).size !== ordenes.length
+  ) {
+    throw new ManejarError("El orden de las preguntas es único", 400);
+  }
+
+  for (const id in ids) {
+    validarId(id);
+  }
+};
+
+//función para obtener un conjunto de preguntas válidas
+export const obtenerPreguntasValidas = async (
+  preguntas: PreguntaSeleccionada[],
+  idUsuario: string,
+  sesion: ClientSession,
+) => {
+  const usuarioId = validarId(idUsuario);
+
+  //validación de los ids de cada pregunta seleccionada
+  const ids = preguntas.map((p) => {
+    validarId(p.pregunta_id);
+  });
+
+  const preguntasDB = await Question.find({
+    _id: { $in: ids },
+    usuario_id: usuarioId,
+    activo: true,
+  }).session(sesion);
+
+  //validando que todas las preguntas sean validas
+  if (preguntasDB.length !== preguntas.length) {
+    throw new ManejarError(
+      "Una o más preguntas no existen o no están activas",
+      404,
+    );
+  }
+
+  const porId = new Map(
+    preguntasDB.map((pregunta) => [pregunta._id.toString(), pregunta]),
+  );
+
+  return preguntas.map((seleccion) => {
+    const pregunta = porId.get(seleccion.pregunta_id);
+
+    if (!pregunta) {
+      throw new ManejarError("No se encontró una pregunta seleccionada", 400);
+    }
+
+    const puntuacion = Number(pregunta.puntuacion);
+
+    if (!Number.isFinite(puntuacion) || puntuacion < 0) {
+      throw new ManejarError("Una pregunta tiene una puntuación inválida", 400);
+    }
+
+    return {
+      pregunta_id: pregunta._id,
+      orden: seleccion.orden,
+      puntuacion,
+    };
+  });
 };

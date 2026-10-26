@@ -14,7 +14,7 @@ export const authRouter = Router();
 
 //Iniciar sesión con usuario y contraseña
 authRouter.post(
-  "/",
+  "/login",
   [
     check("email", "El email es obligatorio").isEmail(),
     check("password", "La contraseña es obligatoria").notEmpty(),

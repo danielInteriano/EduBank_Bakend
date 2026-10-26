@@ -1,5 +1,5 @@
 import { Router } from "express";
 
-const evaluacionesRouter = Router();
+const examenesRouter = Router();
 
-export default evaluacionesRouter;
+export default examenesRouter;
