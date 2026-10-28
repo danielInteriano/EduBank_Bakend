@@ -4,6 +4,7 @@ import { obtenerIdUsuario } from "./usuarios.controller.js";
 import {
   actualizarExam,
   createExamen,
+  deleteExamen,
   ObtenerExamenes,
   ObtenerExamenPorId,
 } from "../services/examenes.service.js";
@@ -83,4 +84,41 @@ export const actualizarExamen = async (req: Request, res: Response) => {
   }
 
   const examen = await actualizarExam(idUsuario, idExamen, req.body);
+
+  if (!examen) {
+    throw new ManejarError("El examen no pudo actualizarse", 404);
+  }
+
+  return res.status(200).json({
+    ok: true,
+    msg: "El examen de actualizó exitosamente.",
+    examen,
+  });
+};
+
+//función para eliminar un examen
+export const eliminarExamen = async (req: Request, res: Response) => {
+  const idExamen = req.params.id;
+  const idUsuario = req.id;
+  try {
+    if (typeof idExamen !== "string" || !idExamen.trim()) {
+      throw new ManejarError("El id del examen es obligatorio", 400);
+    }
+
+    if (typeof idUsuario !== "string" || !idUsuario.trim()) {
+      throw new ManejarError("El id del usuario es obligatorio.", 400);
+    }
+
+    const examen = await deleteExamen(idExamen, idUsuario);
+
+    if (!examen) {
+      throw new ManejarError("No se encontró nada que eliminar.", 404);
+    }
+
+    return res.status(200).json({
+      ok: true,
+      msg: "Examen eliminado exitosamente.",
+      examen,
+    });
+  } catch (error) {}
 };

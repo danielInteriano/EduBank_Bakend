@@ -166,7 +166,7 @@ export const actualizarExam = async (
   const sesion = await mongoose.startSession();
 
   try {
-    let resultado: InstanceType<typeof Examen> | undefined;
+    let resultado: InstanceType<typeof Exam> | undefined;
 
     sesion.withTransaction(async () => {
       const examen = await Exam.findOne({
@@ -195,6 +195,84 @@ export const actualizarExam = async (
       if (datos.descripcion !== undefined) {
         examen.descripcion = datos.descripcion.trim();
       }
+
+      if (datos.encabezado_id !== undefined) {
+        await validarEncabezado(datos.encabezado_id, idUsuario, sesion);
+        examen.encabezado_id = validarId(datos.encabezado_id);
+      }
+
+      if (datos.preguntas !== undefined) {
+        validarPreguntas(datos.preguntas);
+
+        const seleccion = await obtenerPreguntasValidas(
+          datos.preguntas,
+          idUsuario,
+          sesion,
+        );
+
+        await ExamenQuestion.deleteMany(
+          { examen_id: examen._id },
+          { session: sesion },
+        );
+
+        await ExamenQuestion.insertMany(
+          seleccion.map((pregunta, indice) => ({
+            examen_id: examen._id,
+            pregunta_id: pregunta.pregunta_id,
+            numero: indice + 1,
+            orden: pregunta.orden,
+            puntuacion: pregunta.puntuacion,
+          })),
+          { session: sesion },
+        );
+
+        examen.cantidad_preguntas = seleccion.length;
+        examen.puntuacion_total = seleccion.reduce(
+          (total, pregunta) => total + pregunta.puntuacion,
+          0,
+        );
+      }
+      await examen.save({ session: sesion });
+      resultado = examen;
+
+      if (!resultado) {
+        throw new ManejarError("No fue posible actualizar el examen", 400);
+      }
     });
-  } catch (error) {}
+    return resultado;
+  } catch (error) {
+    catchError();
+  } finally {
+    await sesion.endSession();
+  }
+};
+
+//eliminar un examen
+export const deleteExamen = async (idUsuario: string, idExamen: string) => {
+  const usuarioId = validarId(idUsuario);
+  const examenId = validarId(idExamen);
+  try {
+    if (!examenId) {
+      throw new ManejarError("No se encontró el id del examen.", 404);
+    }
+
+    const examen = await Exam.findOne({
+      _id: examenId,
+      usuario_id: usuarioId,
+    });
+
+    if (!examen) {
+      throw new ManejarError("No se encontró el examen.", 404);
+    }
+
+    if (examen.estado === "aplicado") {
+      throw new ManejarError("No se puede eliminar un examen aplicado.", 400);
+    }
+    examen.estado = Estado.ARCHIVADO;
+    await examen.save();
+
+    return examen;
+  } catch (error) {
+    catchError();
+  }
 };

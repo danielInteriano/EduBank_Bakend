@@ -10,12 +10,12 @@ import { bloquesRouter } from "./routes/bloques.routes.js";
 import { temasRouter } from "./routes/temas.routes.js";
 import { usuariosRouter } from "./routes/usuarios.routes.js";
 import { encabezadosRouter } from "./routes/encabezados.routes.js";
+import { examenesRouter } from "./routes/examenes.routes.js";
 import archivosRoutes from "./routes/archivos.js";
 import pdfExamenesRoutes from "./routes/pdf-examenes.js";
 import preguntasPorEvaluacionRoutes from "./routes/preguntas-por-evaluacion.js";
 import reportesRoutes from "./routes/reportes.js";
 import respuestasRoutes from "./routes/respuestas.js";
-import examenesRouter from "./routes/evaluaciones.js";
 
 const app = express();
 
