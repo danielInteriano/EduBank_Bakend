@@ -276,3 +276,25 @@ export const deleteExamen = async (idUsuario: string, idExamen: string) => {
     catchError();
   }
 };
+
+//función para validar un examen
+export const validarExamen = async (
+  idUsuario: Types.ObjectId,
+  idExamen: Types.ObjectId,
+) => {
+  try {
+    const examen = await Exam.findOne({
+      _id: idExamen,
+      usuario_id: idUsuario,
+      estado: { $ne: Estado.ARCHIVADO },
+    });
+
+    if (!examen) {
+      throw new ManejarError("Examen no encontrado", 400);
+    }
+
+    return examen;
+  } catch (error) {
+    catchError();
+  }
+};
