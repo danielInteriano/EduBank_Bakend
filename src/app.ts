@@ -5,17 +5,15 @@ import os from "os";
 import path from "path";
 import { authRouter } from "./routes/auth.routes.js";
 import { asignaturasRouter } from "./routes/asignaturas.routes.js";
-import { preguntasRouter } from "./routes/preguntas.routes.js";
 import { bloquesRouter } from "./routes/bloques.routes.js";
-import { temasRouter } from "./routes/temas.routes.js";
-import { usuariosRouter } from "./routes/usuarios.routes.js";
+import { configuracionRouter } from "./routes/configuracion-pdf.routes.js";
 import { encabezadosRouter } from "./routes/encabezados.routes.js";
 import { examenesRouter } from "./routes/examenes.routes.js";
+import { preguntasRouter } from "./routes/preguntas.routes.js";
+import { temasRouter } from "./routes/temas.routes.js";
+import { usuariosRouter } from "./routes/usuarios.routes.js";
 import archivosRoutes from "./routes/archivos.js";
-import pdfExamenesRoutes from "./routes/pdf-examenes.js";
-import preguntasPorEvaluacionRoutes from "./routes/preguntas-por-evaluacion.js";
 import reportesRoutes from "./routes/reportes.js";
-import respuestasRoutes from "./routes/respuestas.js";
 
 const app = express();
 
@@ -52,18 +50,16 @@ app.use(express.urlencoded({ extended: true }));
 /*Rutas de la aplicación*/
 app.use("/api/auth", authRouter);
 app.use("/api/asignaturas", asignaturasRouter);
-app.use("/api/preguntas", preguntasRouter);
 app.use("/api/bloques", bloquesRouter);
-app.use("/api/temas", temasRouter);
-app.use("/api/usuarios", usuariosRouter);
 app.use("/api/encabezado", encabezadosRouter);
 app.use("/api/examenes", examenesRouter);
+app.use("/api/examenes", configuracionRouter);
+app.use("/api/preguntas", preguntasRouter);
+app.use("/api/temas", temasRouter);
+app.use("/api/usuarios", usuariosRouter);
 
 //pendientes de desarrollo
 app.use("/api/archivos", archivosRoutes);
-app.use("/api/evaluaciones/:id/preguntas", preguntasPorEvaluacionRoutes);
-app.use("/api/pdf-examenes", pdfExamenesRoutes);
-app.use("/api/respuestas", respuestasRoutes);
 app.use("/api/reportes", reportesRoutes);
 
 export default app;
