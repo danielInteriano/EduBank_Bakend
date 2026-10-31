@@ -42,7 +42,7 @@ app.use(
 );
 
 /*Carpeta pública para servir archivos estáticos*/
-app.use(express.static(path.resolve("public")));
+app.use("/uploads", express.static(path.resolve("uploads")));
 
 /*Lectura y parseo del body de las solicitudes*/
 app.use(express.urlencoded({ extended: true }));

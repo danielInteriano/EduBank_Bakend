@@ -19,6 +19,35 @@ const MAX_TAM = 5 * 1024 * 1024;
 const DIRECTORIO = path.resolve("uploads");
 const TIPOS_PERMITIDOS = ["image/jpeg", "image/png", "image/webp"];
 
+//obtener un archivo por su id
+export const burcarArchivoPorId = async (
+  idUsuario: string,
+  idArchivo: string,
+): Promise<Archivo> => {
+  const usuarioId = validarId(idUsuario);
+  const archivoId = validarId(idArchivo);
+
+  try {
+    if (!Types.ObjectId.isValid(archivoId)) {
+      throw new ManejarError("El id del archivo no es válido.", 400);
+    }
+
+    const archivo = await Archive.findOne({
+      _id: archivoId,
+      usuario_id: usuarioId,
+    }).lean();
+
+    if (!archivo) {
+      throw new ManejarError("No se encontró el archivo.", 404);
+    }
+
+    return archivo;
+  } catch (error) {
+    catchError();
+    throw error;
+  }
+};
+
 //función para guardar un archivo de imagen
 export const guardarArchivo = async (
   idUsuario: string,
@@ -130,4 +159,69 @@ export const eliminarArchivoFisico = async (ruta: string): Promise<void> => {
 export const listarArchivos = async (
   idUsuario: string,
   tipo: TipoArchivo,
-) => {};
+): Promise<Archivo[]> => {
+  const usuarioId = validarId(idUsuario);
+  const tiposPermitidos = ["pregunta", "logo", "predeterminada"];
+  const filtro: Record<string, unknown> = {
+    usuario_id: usuarioId,
+  };
+
+  if (tipo) {
+    if (!tiposPermitidos.includes(tipo)) {
+      throw new ManejarError("Tipo de archivo no válido", 400);
+    }
+    filtro.tipo = tipo;
+  }
+
+  return await Archive.find(filtro).sort({ createAt: -1 }).lean();
+};
+
+//función para obtener la imagen predeterminada de una entidad
+export const buscarImagenPredeterminada = async (
+  idUsuario: string,
+): Promise<Archivo | null> => {
+  const usuarioId = validarId(idUsuario);
+  try {
+    const archivo = await Archive.findOne({
+      usuario_id: usuarioId,
+      tipo: "predeterminada",
+    }).lean();
+
+    return archivo;
+  } catch (error) {
+    catchError();
+    throw error;
+  }
+};
+
+//función para eliminar un archivo
+export const borrarArchivo = async (
+  idUsuario: string,
+  idArchivo: string,
+): Promise<void> => {
+  const usuarioId = validarId(idUsuario);
+  const archivoId = validarId(idArchivo);
+
+  try {
+    if (!Types.ObjectId.isValid(archivoId)) {
+      throw new ManejarError("El id del archivo no es válido.", 400);
+    }
+
+    const archivo = await Archive.findOne({
+      _id: archivoId,
+      usuario_id: usuarioId,
+    });
+
+    if (!archivo) {
+      throw new ManejarError("Archivo no encontrado.", 404);
+    }
+
+    await archivo.deleteOne({
+      _id: archivo._id,
+    });
+
+    await eliminarArchivoFisico(archivo.ruta);
+  } catch (error) {
+    catchError();
+  }
+};

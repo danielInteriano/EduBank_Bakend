@@ -5,9 +5,13 @@ import type {
   TipoArchivo,
 } from "../interfaces/archivo.interface.js";
 import {
+  borrarArchivo,
+  burcarArchivoPorId,
+  buscarImagenPredeterminada,
   guardarArchivo,
   listarArchivos,
 } from "../services/archivos.service.js";
+import { catchError } from "../services/catch-error.service.js";
 
 //subir el archivo de una imagen
 export const subirArchivo = async (req: Request, res: Response) => {
@@ -38,7 +42,7 @@ export const subirArchivo = async (req: Request, res: Response) => {
 };
 
 //obtener archivo de una imagen
-export const obtenerArchivo = async (req: Request, res: Response) => {
+export const obtenerArchivos = async (req: Request, res: Response) => {
   const idUsuario = req.id;
   const tiposValidos: TipoArchivo[] = ["pregunta", "logo", "predeterminada"];
   try {
@@ -64,5 +68,75 @@ export const obtenerArchivo = async (req: Request, res: Response) => {
       total: archivos,
       archivos,
     });
+  } catch (error) {
+    catchError();
+  }
+};
+
+//obtener una imagen de archivo por su id
+export const getArchivoPorId = async (req: Request, res: Response) => {
+  const idUsuario = req.id;
+  const idArchivo = req.params.id as string;
+  try {
+    if (!idUsuario) {
+      throw new ManejarError("Usuario no autenticado", 400);
+    }
+
+    if (!idArchivo) {
+      throw new ManejarError("No se envió el id del archivo.", 400);
+    }
+
+    const archivo = await burcarArchivoPorId(idUsuario, idArchivo);
+
+    return res.status(200).json({
+      ok: true,
+      archivo,
+    });
+  } catch (error) {
+    catchError();
+  }
+};
+
+//obtener la imagen predeterminada de una entidad
+export const getArchivoPredeterminado = async (req: Request, res: Response) => {
+  const idUsuario = req.id;
+  try {
+    if (!idUsuario) {
+      throw new ManejarError("Usuario no autenticado", 400);
+    }
+    const archivo = await buscarImagenPredeterminada(idUsuario);
+
+    if (!archivo) {
+      throw new ManejarError("No se encontro el archivo.", 404);
+    }
+
+    return res.status(200).json({
+      ok: true,
+      archivo,
+    });
   } catch (error) {}
+};
+
+//eliminar un archivo por su id
+export const eliminarArchivo = async (req: Request, res: Response) => {
+  const idUsuario = req.id;
+  const idArchivo = req.params.id as string;
+  try {
+    if (!idUsuario) {
+      throw new ManejarError("Usuario no autenticado.", 400);
+    }
+
+    if (!idArchivo) {
+      throw new ManejarError("El id del archivo es obligatorio.", 400);
+    }
+
+    await borrarArchivo(idUsuario, idArchivo);
+
+    res.status(200).json({
+      ok: true,
+      msg: "Archivo eliminado exitosamente.",
+    });
+  } catch (error) {
+    catchError();
+  }
 };
