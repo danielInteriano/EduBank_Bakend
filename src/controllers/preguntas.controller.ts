@@ -101,6 +101,7 @@ export const crearPregunta = async (req: Request, res: Response) => {
       asignatura_id,
       bloque_id,
       tema_id,
+      grado_id,
       tipo,
       enunciado,
       respuesta_correcta,
@@ -122,7 +123,8 @@ export const crearPregunta = async (req: Request, res: Response) => {
     if (
       !Types.ObjectId.isValid(asignatura_id) ||
       !Types.ObjectId.isValid(bloque_id) ||
-      !Types.ObjectId.isValid(tema_id)
+      !Types.ObjectId.isValid(tema_id) ||
+      !Types.ObjectId.isValid(grado_id)
     ) {
       return res.status(400).json({
         ok: false,
@@ -160,6 +162,7 @@ export const crearPregunta = async (req: Request, res: Response) => {
       asignatura_id,
       bloque_id,
       tema_id,
+      grado_id,
       tipo: tipo as TipoPregunta,
       enunciado: enunciado.trim(),
       ...(respuesta_correcta !== undefined && { respuesta_correcta }),
@@ -226,6 +229,7 @@ export const actualizarPregunta = async (req: Request, res: Response) => {
       "asignatura_id",
       "bloque_id",
       "tema_id",
+      "grado_id",
       "tipo",
       "enunciado",
       "respuesta_correcta",
@@ -316,5 +320,7 @@ export const agregarOpcion = async (req: Request, res: Response) => {
       totalOpciones: pregunta?.opciones?.length,
       pregunta,
     });
-  } catch (error) {}
+  } catch (error) {
+    catchError();
+  }
 };

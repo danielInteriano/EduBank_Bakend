@@ -4,16 +4,16 @@ import fileUpload from "express-fileupload";
 import os from "os";
 import path from "path";
 import { authRouter } from "./routes/auth.routes.js";
+import { archivosRouter } from "./routes/archivos.routes.js";
 import { asignaturasRouter } from "./routes/asignaturas.routes.js";
 import { bloquesRouter } from "./routes/bloques.routes.js";
 import { configuracionRouter } from "./routes/configuracion-pdf.routes.js";
 import { encabezadosRouter } from "./routes/encabezados.routes.js";
 import { examenesRouter } from "./routes/examenes.routes.js";
+import { gradosRouter } from "./routes/grados.routes.js";
 import { preguntasRouter } from "./routes/preguntas.routes.js";
 import { temasRouter } from "./routes/temas.routes.js";
 import { usuariosRouter } from "./routes/usuarios.routes.js";
-import archivosRoutes from "./routes/archivos.js";
-import reportesRoutes from "./routes/reportes.js";
 
 const app = express();
 
@@ -23,7 +23,7 @@ app.use(express.json());
 /*Configuración de CORS*/
 const corsOptions: CorsOptions = {
   origin: "localhost:3000",
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "access-token"],
   credentials: true,
   exposedHeaders: ["access-token"],
@@ -49,17 +49,15 @@ app.use(express.urlencoded({ extended: true }));
 
 /*Rutas de la aplicación*/
 app.use("/api/auth", authRouter);
+app.use("/api/archivos", archivosRouter);
 app.use("/api/asignaturas", asignaturasRouter);
 app.use("/api/bloques", bloquesRouter);
+app.use("/api/examenes", configuracionRouter);
 app.use("/api/encabezado", encabezadosRouter);
 app.use("/api/examenes", examenesRouter);
-app.use("/api/examenes", configuracionRouter);
+app.use("/api/grados", gradosRouter);
 app.use("/api/preguntas", preguntasRouter);
 app.use("/api/temas", temasRouter);
 app.use("/api/usuarios", usuariosRouter);
-
-//pendientes de desarrollo
-app.use("/api/archivos", archivosRoutes);
-app.use("/api/reportes", reportesRoutes);
 
 export default app;

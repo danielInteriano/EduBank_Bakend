@@ -213,6 +213,7 @@ export const actualizar = async (
     asignatura_id: pregunta.asignatura_id,
     bloque_id: pregunta.bloque_id,
     tema_id: pregunta.tema_id,
+    grado_id: pregunta.grado_id,
     ...(pregunta.respuesta_correcta !== undefined && {
       respuesta_correcta: pregunta.respuesta_correcta,
     }),
@@ -459,12 +460,23 @@ export const actualizar = async (
     }
   }
 
+  if (Object.hasOwn(cambios, "grado_id")) {
+    if (
+      typeof datosFinales.grado_id !== "string" ||
+      !Types.ObjectId.isValid(datosFinales.grado_id) ||
+      !(await TTema.exists({ _id: datosFinales.grado_id }))
+    ) {
+      throw new ManejarError("El grado no es válido.", 400);
+    }
+  }
+
   //aplicando los cambios a la pregunta
   pregunta.set({
     ...datosFinales,
     asignatura_id: new Types.ObjectId(datosFinales.asignatura_id),
     bloque_id: new Types.ObjectId(datosFinales.bloque_id),
     tema_id: new Types.ObjectId(datosFinales.tema_id),
+    grado_id: new Types.ObjectId(datosFinales.grado_id),
   });
 
   await pregunta.save();

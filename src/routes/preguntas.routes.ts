@@ -12,7 +12,6 @@ import {
   eliminarAsignatura,
 } from "../controllers/asignaturas.controller.js";
 import { check } from "express-validator";
-import { agregarOpcionesAPregunta } from "../services/preguntas.service.js";
 
 export const preguntasRouter = Router();
 

@@ -55,6 +55,12 @@ const PreguntaSchema = new Schema<Pregunta>(
       ref: "TTema",
       required: [true, "El id del tema es obligatorio."],
     },
+    grado_id: {
+      type: Schema.Types.ObjectId,
+      ref: "Grado",
+      required: true,
+      index: true,
+    },
     tipo: {
       type: String,
       enum: Object.values(TipoPregunta),

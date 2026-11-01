@@ -27,5 +27,3 @@ archivosRouter.get("/:id", validarJWT, getArchivoPorId);
 
 //eliminar una imagen de un usuario
 archivosRouter.delete("/:id", validarJWT, validarRol("admin"), eliminarArchivo);
-
-export default archivosRouter;

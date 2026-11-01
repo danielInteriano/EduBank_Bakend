@@ -31,6 +31,7 @@ export interface Pregunta {
   asignatura_id: Types.ObjectId;
   bloque_id: Types.ObjectId;
   tema_id: Types.ObjectId;
+  grado_id: Types.ObjectId;
   tipo: TipoPregunta;
   enunciado: string;
   respuesta_correcta?: string | boolean;
@@ -63,6 +64,7 @@ export type DatosFinales = {
   asignatura_id: Types.ObjectId | string;
   bloque_id: Types.ObjectId | string;
   tema_id: Types.ObjectId | string;
+  grado_id: Types.ObjectId | string;
 };
 
 export type ActualizarQuestion = Partial<crearQuestion>;
