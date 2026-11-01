@@ -1,0 +1,7 @@
+$kind: http-request
+description: ""
+url: http://localhost:3000/api/usuarios/usuario/6ae775094f5dba4fb9321815
+method: GET
+headers:
+  x-token: "{{json_web_token_17qj}}"
+order: 2833

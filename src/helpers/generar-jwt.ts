@@ -1,5 +1,4 @@
 import Jwt, { type SignOptions } from "jsonwebtoken";
-import { error } from "node:console";
 
 export const generarJWT = (uid: string): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -12,7 +11,7 @@ export const generarJWT = (uid: string): Promise<string> => {
     }
 
     Jwt.sign(
-      payload,
+      { id: uid },
       jwtSecret,
       {
         expiresIn: "2h",

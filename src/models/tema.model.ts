@@ -45,6 +45,6 @@ const TemaSchema = new Schema<Tema>(
   },
 );
 
-const TTema = model<Tema>("Bloque", TemaSchema);
+const TTema = model<Tema>("Tema", TemaSchema);
 
 export default TTema;

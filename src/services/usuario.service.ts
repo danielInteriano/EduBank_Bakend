@@ -1,6 +1,8 @@
 import { encriptarPassword } from "../helpers/encriptar.js";
+import type { iUsuarioDB } from "../interfaces/usuario.interface.js";
 import Usuario from "../models/usuario.model.js";
 import bcrypt from "bcryptjs";
+import { validarId } from "../utils/validar-id.js";
 
 //Buscar un usuario por email
 let usuario;
@@ -16,8 +18,11 @@ export const buscarUsuarioPorId = async (id: string) => {
 };
 
 //Valida el password del usuario
-export const validarPassword = async (password: string): Promise<boolean> => {
-  return bcrypt.compareSync(password, usuario!.password_hash);
+export const validarPassword = async (
+  password: string,
+  usuario: iUsuarioDB,
+): Promise<boolean> => {
+  return bcrypt.compareSync(password, usuario.password_hash);
 };
 
 //Obtener todos los usuarios
@@ -55,14 +60,14 @@ export const actualizandoCampos = async (
   }
 
   if (password_hash !== undefined) {
-    camposActualizados.password_hash = encriptarPassword(password_hash);
+    camposActualizados.password_hash = await encriptarPassword(password_hash);
   }
 
   const usuarioActualizado = await Usuario.findByIdAndUpdate(
     id,
     { $set: camposActualizados },
     {
-      new: true,
+      returnDocument: "after",
       runValidators: true,
     },
   );
@@ -71,13 +76,16 @@ export const actualizandoCampos = async (
 };
 
 //Eliminar un usuario
-export const eliminar = async (id: string) => {
-  Usuario.findByIdAndUpdate(
-    id,
-    { activo: false },
+export const eliminar = async (idUsuario: string) => {
+  const usuarioId = validarId(idUsuario);
+  const usuarioActualizado = await Usuario.findByIdAndUpdate(
+    usuarioId,
+    { $set: { activo: false } },
     {
-      new: true,
+      returnDocument: "after",
       runValidators: true,
     },
   );
+
+  return usuarioActualizado;
 };

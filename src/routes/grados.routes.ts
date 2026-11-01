@@ -17,7 +17,7 @@ export const gradosRouter = Router();
 gradosRouter.get("/:id", validarJWT, getGrado);
 
 //obtener todos los grados con estado activo
-gradosRouter.get("/?activos=false", validarJWT, getGrados);
+gradosRouter.get("/", validarJWT, getGrados);
 
 //crear un grado
 gradosRouter.post("/", validarJWT, validarRol("admin"), crearGrado);

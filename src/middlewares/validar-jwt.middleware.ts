@@ -21,12 +21,12 @@ export const validarJWT = (req: Request, res: Response, next: NextFunction) => {
     const payload = jwt.verify(token, jwtSecret);
 
     if (typeof payload === "string" || typeof payload.id !== "string") {
-      res.status(401).json({
+      return res.status(401).json({
         ok: false,
         msg: "El token no contiene un ID válido",
       });
-      return;
     }
+
     req.id = payload.id;
     next();
   } catch (error) {

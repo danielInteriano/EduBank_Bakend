@@ -18,12 +18,12 @@ export const login = async (req: any, res = response) => {
     if (!usuario) {
       return res.status(404).json({
         ok: false,
-        msg: "Usuario no registrado.",
+        msg: "Usuario no resgistrado.",
       });
     }
 
     // Verificar password
-    const validPassword = await validarPassword(password);
+    const validPassword = await validarPassword(password, usuario);
     if (!validPassword) {
       return res.status(404).json({
         ok: false,
@@ -32,7 +32,7 @@ export const login = async (req: any, res = response) => {
     }
 
     // Generar JWT y logear al usuario
-    const token: string = generarJWT(usuario.id);
+    const token = await generarJWT(usuario.id);
     return res.status(200).json({
       ok: true,
       token,
@@ -100,13 +100,27 @@ export const googleSignIn = async (req: any, res = response) => {
 
 //función para revalidar un token y logearse
 export const renewToken = async (req: any, res = response) => {
-  const id = req.id;
+  const idUsuario = req.id;
 
-  //generar un JWT
-  const token = await generarJWT(id);
+  if (!idUsuario) {
+    return res.status(401).json({
+      ok: false,
+      msg: "No se encontró el ID del usuario en la petición",
+    });
+  }
 
   //obtener el usuario
-  const usuario = await buscarUsuarioPorId(id);
+  const usuario = await buscarUsuarioPorId(idUsuario);
+
+  if (!usuario) {
+    return res.status(404).json({
+      ok: false,
+      msg: "No se encontró el usuario",
+    });
+  }
+
+  //generar un JWT
+  const token = await generarJWT(idUsuario);
 
   res.json({
     ok: true,

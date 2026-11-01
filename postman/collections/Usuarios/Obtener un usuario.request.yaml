@@ -1,0 +1,7 @@
+$kind: http-request
+description: ""
+url: http://localhost:3000/api/usuarios/danielstanly@yahoo.es
+method: GET
+headers:
+  x-token: "{{json_web_token_0s0s}}"
+order: 1833

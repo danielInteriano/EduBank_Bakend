@@ -57,7 +57,7 @@ encabezadosRouter.post(
 
 //actualizar los datos de un encabezado
 encabezadosRouter.patch(
-  "/id:",
+  "/:id",
   validarJWT,
   validarRol("admin"),
   [

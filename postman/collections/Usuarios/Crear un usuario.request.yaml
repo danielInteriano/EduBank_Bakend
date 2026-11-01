@@ -1,0 +1,26 @@
+$kind: http-request
+description: ""
+url: http://localhost:3000/api/usuarios
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"nombre\": \"Daniel Stanly\",\r
+
+    \  \"apellido\": \"Interiano Rapalo\",\r
+
+    \  \"email\": \"danielstanly@hotmail.com\",\r
+
+    \  \"password\": \"Admin123\",\r
+
+    \  \"rol\": \"admin\",\r
+
+    \  \"activo\": true,\r
+
+    \  \"imagen_url\": \"sin imagen\",\r
+
+    \  \"google\": false\r
+
+    }"
+order: 1000

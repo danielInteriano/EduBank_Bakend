@@ -16,7 +16,7 @@ import { check } from "express-validator";
 export const preguntasRouter = Router();
 
 //obtener un tema
-preguntasRouter.get("/id:", validarJWT, getPregunta);
+preguntasRouter.get("/:id", validarJWT, getPregunta);
 
 //obtener todas las preguntas seleccionadas
 preguntasRouter.get("/preguntas", validarJWT, getPreguntasSeleccionadas);
@@ -64,7 +64,7 @@ preguntasRouter.post(
 
 //actualizar una pregunta
 preguntasRouter.patch(
-  "/id:",
+  "/:id",
   validarJWT,
   validarRol("admin"),
   [
@@ -105,7 +105,7 @@ preguntasRouter.patch(
 
 //eliminar una pregunta cambiando su estado activo "true" a "false"
 preguntasRouter.delete(
-  "/id:",
+  "/:id",
   validarJWT,
   validarRol("admin"),
   eliminarAsignatura,

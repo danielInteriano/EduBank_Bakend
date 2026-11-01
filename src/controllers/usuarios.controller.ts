@@ -140,7 +140,7 @@ export const crearUsuario = async (req: Request, res: Response) => {
     usuario.password_hash = await encriptarPassword(password);
 
     await usuario.save();
-    const token = generarJWT(usuario.id);
+    const token = await generarJWT(usuario.id);
 
     return res.status(200).json({
       ok: true,
@@ -148,7 +148,8 @@ export const crearUsuario = async (req: Request, res: Response) => {
       token,
     });
   } catch (error) {
-    catchError();
+    console.error(error);
+    return res.status(500).json(catchError());
   }
 };
 
@@ -200,15 +201,16 @@ export const actualizarUsuario = async (req: Request, res: Response) => {
       usuario: usuarioActualizado,
     });
   } catch (error) {
-    catchError();
+    console.error(error);
+    return res.status(500).json(catchError());
   }
 };
 
 //función para eliminar un usuario
 export const eliminarUsuario = async (req: Request, res: Response) => {
-  const id = req.params.id;
+  const idUsuario = req.params.id;
 
-  if (typeof id !== "string" || !id.trim()) {
+  if (typeof idUsuario !== "string" || !idUsuario.trim()) {
     return res.status(400).json({
       ok: false,
       msg: "El id del usuario no es válido",
@@ -216,23 +218,26 @@ export const eliminarUsuario = async (req: Request, res: Response) => {
   }
 
   try {
-    const encontrado = await buscarUsuarioPorId(id);
+    const encontrado = await buscarUsuarioPorId(idUsuario);
 
     if (!encontrado) {
       return res.status(404).json({
         ok: false,
-        msg: "No se encontro el usuario.",
+        msg: "No se encontró el usuario.",
       });
     }
 
     //Si el usuario existe, se cambia su estado "activo" a false
-    await eliminar(id);
+    const usuarioActualizado = await eliminar(idUsuario);
+
     return res.status(200).json({
       ok: true,
-      msg: "Usuario eliminado exitosamente.",
+      msg: "Usuario desactivado exitosamente.",
+      usuarioActualizado,
     });
   } catch (error) {
-    catchError();
+    console.error(error);
+    return res.status(500).json(catchError());
   }
 };
 

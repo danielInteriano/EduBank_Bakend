@@ -35,7 +35,6 @@ asignaturasRouter.post(
   validarRol("admin"),
   [
     check("nombre")
-      .withMessage("El nombre es obligatorio.")
       .isString()
       .withMessage("El nombre debe ser texto.")
       .trim()

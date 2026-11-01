@@ -41,7 +41,7 @@ export const getGrado = async (req: Request, res: Response) => {
 
 //obtener todos los grados
 export const getGrados = async (req: Request, res: Response) => {
-  const soloActivos = req.params.activos !== "false";
+  const soloActivos = req.query.activos !== "false";
   try {
     const grados = await obtenerGrados(soloActivos);
 

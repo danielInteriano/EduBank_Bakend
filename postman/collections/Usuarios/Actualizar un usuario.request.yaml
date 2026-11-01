@@ -1,0 +1,16 @@
+$kind: http-request
+description: ""
+url: http://localhost:3000/api/usuarios/6ae7a04972a16cc42ac50b84
+method: PATCH
+headers:
+  x-token: "{{json_web_token_0wz4}}"
+body:
+  type: json
+  content: "{\r
+
+    \    \"nombre\":\"Raul Eduardo\",\r
+
+    \    \"apellido\":\"Interiano Rápalo\"\r
+
+    }"
+order: 4833

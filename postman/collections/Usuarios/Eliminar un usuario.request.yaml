@@ -1,0 +1,7 @@
+$kind: http-request
+description: ""
+url: http://localhost:3000/api/usuarios/6ae7a04972a16cc42ac50b84
+method: DELETE
+headers:
+  x-token: "{{json_web_token_02f2}}"
+order: 5833

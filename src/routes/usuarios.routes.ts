@@ -28,8 +28,6 @@ usuariosRouter.get("/", validarJWT, getUsuarios);
 //Crear un usuario
 usuariosRouter.post(
   "/",
-  validarCampos,
-  validarRol("admin"),
   [
     check("nombre", "El nombre es obligatorio")
       .notEmpty()
@@ -39,25 +37,23 @@ usuariosRouter.post(
       .withMessage("El nombre debe contener solo letras."),
     check("apellido", "El apellido es obligatorio")
       .notEmpty()
-      .withMessage("El nombre no puede estar vacío.")
+      .withMessage("El apellido no puede estar vacío.")
       .trim()
       .matches(/.*[a-zA-ZáéíóúÁÉÍÓÚñÑ].*/)
-      .withMessage("El nombre debe contener solo letras."),
+      .withMessage("El apellido debe contener solo letras."),
     check("email", "El email no es válido").isEmail(),
-    check("password_hash", "La contraseña es obligatoria")
+    check("password", "La contraseña es obligatoria")
       .notEmpty()
-      .withMessage("El nombre no puede estar vacío.")
+      .withMessage("El contraseña no puede estar vacía.")
       .trim(),
-    check("imagen_url", "Seleccione una imagen").notEmpty(),
   ],
+  validarCampos,
   crearUsuario,
 );
 
 //Actualizar ciertos atributos de un usuario
 usuariosRouter.patch(
   "/:id",
-  validarJWT,
-  validarRol("admin"),
   [
     check("nombre", "El nombre es obligatorio")
       .notEmpty()
@@ -78,6 +74,8 @@ usuariosRouter.patch(
       .trim(),
     check("imagen_url", "Seleccione una imagen").notEmpty(),
   ],
+  validarJWT,
+  validarRol("admin"),
   actualizarUsuario,
 );
 
