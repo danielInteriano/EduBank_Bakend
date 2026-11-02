@@ -89,3 +89,7 @@ ehthumbs.db
 .cache/
 .parcel-cache/
 .eslintcache
+
+# Archivos y configuraciones locales de Postman
+.postman/
+postman/
