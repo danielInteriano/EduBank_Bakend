@@ -1,0 +1,14 @@
+$kind: http-request
+description: ""
+url: http://localhost:3000/api/grados/6ae7bfccb1e0bfc716225adf
+method: PUT
+headers:
+  x-token: "{{json_web_token_02f2}}"
+body:
+  type: json
+  content: "{\r
+
+    \    \"nombre\":\"Décimo Grado\"\r
+
+    }"
+order: 4000

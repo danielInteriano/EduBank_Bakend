@@ -1,0 +1,10 @@
+$kind: http-request
+description: ""
+url: http://localhost:3000/api/grados/6ae7bfccb1e0bfc716225adf
+method: PATCH
+headers:
+  x-token: "{{json_web_token_0b5e}}"
+body:
+  type: json
+  content: "{\r\n    \"activo\":false\r\n}"
+order: 5000

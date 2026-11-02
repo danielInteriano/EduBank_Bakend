@@ -22,7 +22,7 @@ asignaturasRouter.get("/:id", validarJWT, getAsignatura);
 asignaturasRouter.get("/", validarJWT, getAsignaturas);
 
 //obtener un conjunto de asignaturas seleccionadas
-asignaturasRouter.get(
+asignaturasRouter.post(
   "/seleccionadas",
   validarJWT,
   getAsignaturasSeleccionadas,
@@ -31,8 +31,6 @@ asignaturasRouter.get(
 //crear una nueva asignatura
 asignaturasRouter.post(
   "/",
-  validarJWT,
-  validarRol("admin"),
   [
     check("nombre")
       .isString()
@@ -57,16 +55,18 @@ asignaturasRouter.post(
       .isNumeric()
       .withMessage("El orden debe ser un número"),
   ],
+  validarJWT,
+  validarRol("admin"),
   crearAsignatura,
 );
 
 //actualizar los campos de una asignatura
 asignaturasRouter.patch(
   "/:id",
-  validarJWT,
-  validarRol("admin"),
+
   [
     check("nombre", "El nobre es obligatorio.")
+      .optional()
       .isString()
       .withMessage("El nombre debe ser texto.")
       .trim()
@@ -84,6 +84,8 @@ asignaturasRouter.patch(
       .isLength({ max: 300 })
       .withMessage("La descripción no puede superar los 300 caracteres."),
   ],
+  validarJWT,
+  validarRol("admin"),
   actualizarAsignatura,
 );
 

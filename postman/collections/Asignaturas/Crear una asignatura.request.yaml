@@ -1,0 +1,16 @@
+$kind: http-request
+description: ""
+url: http://localhost:3000/api/asignaturas
+method: POST
+headers:
+  x-token: "{{json_web_token_0b5e}}"
+body:
+  type: json
+  content: "{\r
+
+    \    \"nombre\":\"Español\",\r
+
+    \    \"descripcion\": \"Comprende la gramática del idioma Español\"\r
+
+    }"
+order: 1000

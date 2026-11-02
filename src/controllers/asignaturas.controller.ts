@@ -11,6 +11,7 @@ import {
 } from "../services/asignaturas.service.js";
 import { catchError } from "../services/catch-error.service.js";
 import mongoose from "mongoose";
+import { actualizarAsignaturaValido } from "../validators/validar_actualizar_asignatura.validator.js";
 
 //función para obtener una asignatura
 export const getAsignatura = async (req: Request, res: Response) => {
@@ -78,13 +79,11 @@ export const getAsignaturasSeleccionadas = async (
   if (
     !Array.isArray(ids) ||
     ids.length === 0 ||
-    ids.some(
-      (id: unknown) => typeof id !== "string" || !mongoose.isValidObjectId(id),
-    )
+    !ids.every((id) => typeof id === "string")
   ) {
     return res.status(400).json({
       ok: false,
-      msg: "Debes enviar un arreglo de IDs válidos",
+      msg: "Debes enviar un array de IDs de asignaturas.",
     });
   }
 
@@ -92,7 +91,7 @@ export const getAsignaturasSeleccionadas = async (
   if (ids.length > 10) {
     return res.status(400).json({
       ok: false,
-      msg: "No puedes seleccionar más de 20 asignaturas",
+      msg: "No puedes seleccionar más de 10 asignaturas",
     });
   }
 
@@ -104,7 +103,8 @@ export const getAsignaturasSeleccionadas = async (
       asignaturas,
     });
   } catch (error) {
-    catchError();
+    console.error(error);
+    return res.status(500).json(catchError());
   }
 };
 
@@ -146,14 +146,13 @@ export const crearAsignatura = async (req: Request, res: Response) => {
 export const actualizarAsignatura = async (req: Request, res: Response) => {
   const id = req.params.id;
 
-  if (typeof id !== "string" || !id.trim()) {
-    return res.status(400).json({
-      ok: false,
-      msg: "El id de la asignatura no es válido",
-    });
-  }
-
   try {
+    if (typeof id !== "string" || !id.trim()) {
+      return res.status(400).json({
+        ok: false,
+        msg: "El id de la asignatura no es válido",
+      });
+    }
     const asignaturaDB = await obtenerAsignaturaPorId(id);
 
     if (!asignaturaDB) {
@@ -163,32 +162,29 @@ export const actualizarAsignatura = async (req: Request, res: Response) => {
       });
     }
 
-    //si la asignatura esta, entonces se actualiza.
-    const { nombre, descripcion, ...campos } = req.body;
+    //validando los campos para actualizar
+    const resultado = actualizarAsignaturaValido.safeParse(req.body);
 
-    if (asignaturaDB.nombre !== nombre) {
-      const asignaturaRegistrada = await obtenerAsignaturaPorNombre(nombre);
-      if (asignaturaRegistrada) {
-        return res.status(400).json({
-          ok: false,
-          msg: "Ya existe una asignatura con ese nombre.",
-        });
-      }
+    if (!resultado.success) {
+      return res.status(400).json({
+        ok: false,
+        errores: resultado.error.issues,
+      });
     }
 
     //Actualizando los campos de la asignatura
     const asignaturaActualizada = await actualizandoCamposAsignatura(
       id,
-      nombre,
-      descripcion,
+      resultado.data,
     );
 
-    res.status(200).json({
+    return res.status(200).json({
       ok: true,
       usuario: asignaturaActualizada,
     });
   } catch (error) {
-    catchError();
+    console.error(error);
+    return res.status(500).json(catchError());
   }
 };
 
@@ -214,12 +210,14 @@ export const eliminarAsignatura = async (req: Request, res: Response) => {
     }
 
     //Si la asignatura existe, se cambia su estado "activo" a false
-    await eliminar(id);
+    const asignatura = await eliminar(id);
     return res.status(200).json({
       ok: true,
       msg: "Asignatura eliminada exitosamente.",
+      asignatura,
     });
   } catch (error) {
-    catchError();
+    console.error(error);
+    return res.status(500).json(catchError());
   }
 };

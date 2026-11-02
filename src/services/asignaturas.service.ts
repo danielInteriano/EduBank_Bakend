@@ -1,6 +1,7 @@
 import { Types } from "mongoose";
 import Signature from "../models/asignatura.model.js";
 import { validarId } from "../utils/validar-id.js";
+import type { CamposActualizarAsignatura } from "../interfaces/asignatura.interface.js";
 
 //obtener una asignatura
 export const obtenerAsignaturaPorId = async (id: string) => {
@@ -21,7 +22,7 @@ export const contarAsignaturas = async () => {
 
 //obtener un conjunto de asignaturas por ids
 export const obtenerAsignaturasPorIds = async (ids: string[]) => {
-  return Signature.find({
+  return await Signature.find({
     _id: { $in: ids },
     activo: true,
   });
@@ -35,24 +36,13 @@ export const obtenerAsignaturaPorNombre = async (nombre: string) => {
 //actualizar los campos de una asignatura
 export const actualizandoCamposAsignatura = async (
   id: string,
-  nombre: string,
-  descripcion: string,
+  datos: CamposActualizarAsignatura,
 ) => {
-  const camposActualizados: Record<string, unknown> = {};
-
-  if (nombre !== undefined) {
-    camposActualizados.nombre = nombre;
-  }
-
-  if (descripcion !== undefined) {
-    camposActualizados.descripcion = descripcion;
-  }
-
   const asignaturaActualizada = await Signature.findByIdAndUpdate(
     id,
-    { $set: camposActualizados },
+    { $set: datos },
     {
-      new: true,
+      returnDocument: "after",
       runValidators: true,
     },
   );
@@ -62,12 +52,14 @@ export const actualizandoCamposAsignatura = async (
 
 //función para eliminar una asignatura
 export const eliminar = async (id: string) => {
-  Signature.findByIdAndUpdate(
+  const asignatura = await Signature.findByIdAndUpdate(
     id,
     { activo: false },
     {
-      new: true,
+      returnDocument: "after",
       runValidators: true,
     },
   );
+
+  return asignatura;
 };

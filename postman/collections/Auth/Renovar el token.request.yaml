@@ -4,4 +4,4 @@ url: http://localhost:3000/api/auth/renew
 method: GET
 headers:
   x-token: "{{json_web_token_02f2}}"
-order: 2000
+order: 7

@@ -1,0 +1,18 @@
+$kind: http-request
+description: ""
+url: http://localhost:3000/api/asignaturas/seleccionadas
+method: POST
+headers:
+  x-token: "{{json_web_token_0b5e}}"
+body:
+  type: json
+  content: "{\r
+
+    \    \"ids\":[\r
+
+    \        \"6ae7c6323e0494a598185ca7\"\r
+
+    \    ]\r
+
+    }"
+order: 1313

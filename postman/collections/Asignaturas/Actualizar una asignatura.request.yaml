@@ -1,0 +1,14 @@
+$kind: http-request
+description: ""
+url: http://localhost:3000/api/asignaturas/6ae7c6323e0494a598185ca7
+method: PATCH
+headers:
+  x-token: "{{json_web_token_0b5e}}"
+body:
+  type: json
+  content: "{\r
+
+    \    \"descripcion\":\"Asignatura con contenidos abstractos.\"\r
+
+    }"
+order: 2000

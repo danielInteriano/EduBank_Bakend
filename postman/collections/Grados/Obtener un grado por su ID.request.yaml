@@ -1,0 +1,7 @@
+$kind: http-request
+description: ""
+url: http://localhost:3000/api/grados/6ae7bdc789d33d00504dc3df
+method: GET
+headers:
+  x-token: "{{json_web_token_02f2}}"
+order: 3000

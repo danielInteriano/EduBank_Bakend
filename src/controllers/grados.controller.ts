@@ -30,7 +30,7 @@ export const getGrado = async (req: Request, res: Response) => {
       throw new ManejarError("El id de grado es obligatorio.", 400);
     }
 
-    const grado = obtenerGradoPorId(idGrado);
+    const grado = await obtenerGradoPorId(idGrado);
 
     return res.status(200).json({
       ok: true,
@@ -49,7 +49,10 @@ export const getGrados = async (req: Request, res: Response) => {
       ok: true,
       grados,
     });
-  } catch (error) {}
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(catchError());
+  }
 };
 
 //crear un grado
@@ -64,7 +67,7 @@ export const crearGrado = async (req: Request, res: Response) => {
       );
     }
 
-    const grado = registrarGrado(resultado.data);
+    const grado = await registrarGrado(resultado.data);
 
     return res.status(200).json({
       ok: true,
@@ -72,7 +75,8 @@ export const crearGrado = async (req: Request, res: Response) => {
       grado,
     });
   } catch (error) {
-    catchError();
+    console.error(error);
+    return res.status(500).json(catchError());
   }
 };
 
@@ -96,7 +100,10 @@ export const actualizarGrado = async (req: Request, res: Response) => {
       );
     }
 
-    const grado = modificarGrado(idGrado, resultado.data as gradoActualizado);
+    const grado = await modificarGrado(
+      idGrado,
+      resultado.data as gradoActualizado,
+    );
 
     if (!grado) {
       throw new ManejarError("Grado no actualizado.", 400);
@@ -108,7 +115,8 @@ export const actualizarGrado = async (req: Request, res: Response) => {
       grado,
     });
   } catch (error) {
-    catchError();
+    console.error(error);
+    return res.status(500).json(catchError());
   }
 };
 
@@ -139,5 +147,8 @@ export const cambiarEstadoGrado = async (req: Request, res: Response) => {
       mensaje: mensaje,
       grado,
     });
-  } catch (error) {}
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(catchError());
+  }
 };

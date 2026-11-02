@@ -1,0 +1,16 @@
+$kind: http-request
+description: ""
+url: http://localhost:3000/api/grados
+method: POST
+headers:
+  x-token: "{{json_web_token_02f2}}"
+body:
+  type: json
+  content: "{\r
+
+    \    \"nombre\":\"Décimo\",\r
+
+    \    \"orden\":10\r
+
+    }"
+order: 1000

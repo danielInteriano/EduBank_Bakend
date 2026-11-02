@@ -52,7 +52,10 @@ export const registrarGrado = async (datos: gradoCreado) => {
   const existente = await Grade.findOne({
     $or: [
       {
-        nombre: { $regex: `^${escaparRegex(nombre)}$`, options: `i` },
+        nombre: {
+          $regex: `^${escaparRegex(nombre)}$`,
+          $options: "i",
+        },
       },
       { orden: datos.orden },
     ],
@@ -144,9 +147,9 @@ export const cambiarEstado = async (idGrado: string, estado: boolean) => {
   try {
     const grado = await Grade.findByIdAndUpdate(
       gradoId,
-      { $set: { estado } },
+      { $set: { activo: estado } },
       {
-        new: true,
+        returnDocument: "after",
         runValidators: true,
       },
     );
