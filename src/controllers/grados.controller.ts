@@ -9,7 +9,6 @@ import {
 } from "../services/grados.service.js";
 import z from "zod";
 import { catchError } from "../services/catch-error.service.js";
-import { validarId } from "../utils/validar-id.js";
 import type { gradoActualizado } from "../interfaces/grado.interface.js";
 
 const crearGradoValido = z.strictObject({

@@ -101,7 +101,7 @@ const PreguntaSchema = new Schema<Pregunta>(
       type: String,
       trim: true,
     },
-    dificultad: {
+    nivel_dificultad: {
       type: String,
       enum: Object.values(NivelDificultad),
       trim: true,

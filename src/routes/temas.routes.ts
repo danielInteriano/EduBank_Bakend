@@ -21,13 +21,12 @@ temasRouter.get("/:id", validarJWT, getTema);
 temasRouter.get("/", validarJWT, getTemas);
 
 //obtener todas las preguntas de un tema
+//PENDIENTE
 temasRouter.get("/:idTema/preguntas", validarJWT, getPreguntasPorTema);
 
 //crear un tema
 temasRouter.post(
   "/",
-  validarJWT,
-  validarRol("admin"),
   [
     check("nombre", "El nombre es obligatorio")
       .isString()
@@ -42,8 +41,6 @@ temasRouter.post(
       .isString()
       .withMessage("La descripción debe ser un texto.")
       .trim()
-      .notEmpty()
-      .withMessage("La descripción no puede estar vacía.")
       .isLength({ max: 300 })
       .withMessage("La descripción no puede superar los 300 caracteres."),
     check("bloque_id")
@@ -52,21 +49,20 @@ temasRouter.post(
       .isMongoId()
       .withMessage("El ID del bloque no es válido"),
   ],
+  validarJWT,
+  validarRol("admin"),
   crearTema,
 );
 
 //actualizar un bloque
 temasRouter.patch(
   "/:id",
-  validarJWT,
-  validarRol("admin"),
   [
     check("nombre", "El nombre es obligatorio")
+      .optional()
       .isString()
       .withMessage("El nombre debe ser texto.")
       .trim()
-      .notEmpty()
-      .withMessage("El nombre no puede estar vacío.")
       .matches(/.*[a-zA-ZáéíóúÁÉÍÓÚñÑ].*/)
       .withMessage("El nombre debe contener al menos una letra."),
     check("descripcion")
@@ -74,8 +70,6 @@ temasRouter.patch(
       .isString()
       .withMessage("La descripción debe ser un texto.")
       .trim()
-      .notEmpty()
-      .withMessage("La descripción no puede estar vacía.")
       .isLength({ max: 300 })
       .withMessage("La descripción no puede superar los 300 caracteres."),
     check("bloque_id")
@@ -84,6 +78,8 @@ temasRouter.patch(
       .isMongoId()
       .withMessage("El ID del bloque no es válido"),
   ],
+  validarJWT,
+  validarRol("admin"),
   actualizarTema,
 );
 

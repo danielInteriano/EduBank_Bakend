@@ -12,6 +12,7 @@ import {
 } from "../services/bloques.service.js";
 import mongoose from "mongoose";
 import { obtenerAsignaturaPorId } from "../services/asignaturas.service.js";
+import { actualizarBloqueValido } from "../validators/validar-actualizar-bloque.validator.js";
 
 //función para obtener un bloque
 export const getBloque = async (req: Request, res: Response) => {
@@ -25,11 +26,12 @@ export const getBloque = async (req: Request, res: Response) => {
   }
 
   try {
-    const bloque = obtenerBloquePorId(id);
+    const bloque = await obtenerBloquePorId(id);
+
     if (!bloque) {
       return res.status(404).json({
         ok: false,
-        msg: "No se encontró el bloque con ese id.",
+        msg: "No se encontró el bloque.",
       });
     }
 
@@ -86,7 +88,7 @@ export const getTemasPorBloque = async (req: Request, res: Response) => {
 };
 //función para crear un bloque
 export const crearBloque = async (req: Request, res: Response) => {
-  const { idAsignatura, nombre } = req.body;
+  const { asignatura_id, nombre } = req.body;
 
   if (typeof nombre !== "string" || !nombre.trim()) {
     return res.status(400).json({
@@ -96,8 +98,8 @@ export const crearBloque = async (req: Request, res: Response) => {
   }
 
   if (
-    typeof idAsignatura !== "string" ||
-    !mongoose.isValidObjectId(idAsignatura)
+    typeof asignatura_id !== "string" ||
+    !mongoose.isValidObjectId(asignatura_id)
   ) {
     return res.status(400).json({
       ok: false,
@@ -106,7 +108,7 @@ export const crearBloque = async (req: Request, res: Response) => {
   }
 
   try {
-    const asignaturaExiste = await obtenerAsignaturaPorId(idAsignatura);
+    const asignaturaExiste = await obtenerAsignaturaPorId(asignatura_id);
     const bloqueExiste = await obtenerBloquePorNombre(nombre);
 
     if (!asignaturaExiste) {
@@ -123,18 +125,24 @@ export const crearBloque = async (req: Request, res: Response) => {
       });
     }
 
-    const bloque = new BBloque(req.body);
-    await bloque.save();
+    const bloque = await BBloque.create(req.body);
+
+    return res.status(200).json({
+      ok: true,
+      msg: "Bloque creado exitosamente.",
+      bloque,
+    });
   } catch (error) {
-    catchError();
+    console.error(error);
+    return res.status(500).json(catchError());
   }
 };
 
 //función para actualizar un bloque
 export const actualizarBloque = async (req: Request, res: Response) => {
-  const id = req.params.id;
+  const idBloque = req.params.id as string;
 
-  if (typeof id !== "string" || !id.trim()) {
+  if (typeof idBloque !== "string" || !idBloque.trim()) {
     return res.status(400).json({
       ok: false,
       msg: "El id del bloque no es válido",
@@ -142,7 +150,7 @@ export const actualizarBloque = async (req: Request, res: Response) => {
   }
 
   try {
-    const bloqueDB = await obtenerBloquePorId(id);
+    const bloqueDB = await obtenerBloquePorId(idBloque);
 
     if (!bloqueDB) {
       return res.status(404).json({
@@ -151,40 +159,38 @@ export const actualizarBloque = async (req: Request, res: Response) => {
       });
     }
 
-    //si el bloque está, entonces se actualiza.
-    const { nombre, descripcion, ...campos } = req.body;
+    //validando los campos para actualizar
+    const resultado = actualizarBloqueValido.safeParse(req.body);
 
-    if (bloqueDB.nombre !== nombre) {
-      const bloqueRegistrado = await obtenerBloquePorNombre(nombre);
-      if (bloqueRegistrado) {
-        return res.status(400).json({
-          ok: false,
-          msg: "Ya existe un bloque con ese nombre.",
-        });
-      }
+    if (!resultado.success) {
+      return res.status(400).json({
+        ok: false,
+        errores: resultado.error.issues,
+      });
     }
 
     //Actualizando los campos del bloque
     const bloqueActualizado = await actualizandoCamposBloque(
-      id,
-      nombre,
-      descripcion,
+      idBloque,
+      resultado.data,
     );
 
-    res.status(200).json({
+    return res.status(200).json({
       ok: true,
+      msg: "Bloque actualizado exitosamente.",
       usuario: bloqueActualizado,
     });
   } catch (error) {
-    catchError();
+    console.error(error);
+    return res.status(500).json(catchError());
   }
 };
 
 //función para eliminar un bloque
 export const eliminarBloque = async (req: Request, res: Response) => {
-  const id = req.params.id;
+  const idBloque = req.params.id;
 
-  if (typeof id !== "string" || !id.trim()) {
+  if (typeof idBloque !== "string" || !idBloque.trim()) {
     return res.status(400).json({
       ok: false,
       msg: "El id del bloque no es válido.",
@@ -192,7 +198,7 @@ export const eliminarBloque = async (req: Request, res: Response) => {
   }
 
   try {
-    const encontrado = await obtenerBloquePorId(id);
+    const encontrado = await obtenerBloquePorId(idBloque);
 
     if (!encontrado) {
       return res.status(404).json({
@@ -202,12 +208,15 @@ export const eliminarBloque = async (req: Request, res: Response) => {
     }
 
     //Si el bloque existe, se cambia su estado "activo" a false
-    await eliminar(id);
+    const bloqueEliminado = await eliminar(idBloque);
+
     return res.status(200).json({
       ok: true,
       msg: "Bloque eliminado exitosamente.",
+      bloque: bloqueEliminado,
     });
   } catch (error) {
-    catchError();
+    console.error(error);
+    return res.status(500).json(catchError());
   }
 };

@@ -1,5 +1,8 @@
 import { ManejarError } from "../classes/manejo-error.class.js";
-import { TipoPregunta } from "../interfaces/pregunta.interface.js";
+import {
+  TipoPregunta,
+  type PreguntaConOpciones,
+} from "../interfaces/pregunta.interface.js";
 import Question from "../models/pregunta.model.js";
 import { validarId } from "./validar-id.js";
 
@@ -20,11 +23,13 @@ export const obtenerOpciones = async (
     usuario_id: usuarioId,
     activo: true,
     tipo: { $in: tiposConOpciones },
-  }).select("opciones tipo");
+  })
+    .select("opciones tipo")
+    .lean<PreguntaConOpciones | null>();
 
   if (!pregunta) {
     throw new ManejarError("Pregunta no encontrada o no permite opciones", 400);
   }
 
-  return pregunta.opciones ?? [];
+  return pregunta.opciones;
 };

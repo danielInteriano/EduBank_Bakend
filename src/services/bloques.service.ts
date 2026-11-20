@@ -2,10 +2,13 @@ import { Types } from "mongoose";
 import BBloque from "../models/bloque.model.js";
 import { ManejarError } from "../classes/manejo-error.class.js";
 import TTema from "../models/tema.model.js";
+import type { DatosActualizarBloque } from "../interfaces/bloque.interface.js";
+import { validarId } from "../utils/validar-id.js";
 
 //obtener un bloque
 export const obtenerBloquePorId = async (id: string) => {
-  const bloque = BBloque.findById(id);
+  const idBloque = validarId(id);
+  const bloque = await BBloque.findById(idBloque);
   return bloque;
 };
 
@@ -55,40 +58,30 @@ export const obtenerTemasPorBloque = async (idBloque: string) => {
 
 //actualizar los campos de un bloque
 export const actualizandoCamposBloque = async (
-  id: string,
-  nombre: string,
-  descripcion: string,
+  idBloque: string,
+  datos: DatosActualizarBloque,
 ) => {
-  const camposActualizados: Record<string, unknown> = {};
-
-  if (nombre !== undefined) {
-    camposActualizados.nombre = nombre;
-  }
-
-  if (descripcion !== undefined) {
-    camposActualizados.descripcion = descripcion;
-  }
-
   const bloqueActualizado = await BBloque.findByIdAndUpdate(
-    id,
-    { $set: camposActualizados },
+    idBloque,
+    { $set: datos },
     {
-      new: true,
+      returnDocument: "after",
       runValidators: true,
     },
   );
 
-  return camposActualizados;
+  return bloqueActualizado;
 };
 
 //eliminar un bloque cambiando su estado a no activo
-export const eliminar = async (id: string) => {
-  BBloque.findByIdAndUpdate(
-    id,
+export const eliminar = async (idBloque: string) => {
+  const bloqueEliminado = await BBloque.findByIdAndUpdate(
+    idBloque,
     { activo: false },
     {
-      new: true,
+      returnDocument: "after",
       runValidators: true,
     },
   );
+  return bloqueEliminado;
 };

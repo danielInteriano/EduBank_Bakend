@@ -27,8 +27,6 @@ bloquesRouter.get("/:idBloque/temas", validarJWT, getTemasPorBloque);
 //crear un bloque
 bloquesRouter.post(
   "/",
-  validarJWT,
-  validarRol("admin"),
   [
     check("nombre", "El nombre es obligatorio")
       .isString()
@@ -53,21 +51,20 @@ bloquesRouter.post(
       .isMongoId()
       .withMessage("El ID de la asignatura no es válido"),
   ],
+  validarJWT,
+  validarRol("admin"),
   crearBloque,
 );
 
 //actualizar un bloque
 bloquesRouter.patch(
   "/:id",
-  validarJWT,
-  validarRol("admin"),
   [
     check("nombre", "El nombre es obligatorio")
+      .optional()
       .isString()
       .withMessage("El nombre debe ser texto.")
       .trim()
-      .notEmpty()
-      .withMessage("El nombre no puede estar vacío.")
       .matches(/.*[a-zA-ZáéíóúÁÉÍÓÚñÑ].*/)
       .withMessage("El nombre debe contener al menos una letra."),
     check("descripcion")
@@ -75,16 +72,15 @@ bloquesRouter.patch(
       .isString()
       .withMessage("La descripción debe ser un texto.")
       .trim()
-      .notEmpty()
-      .withMessage("La descripción no puede estar vacía.")
       .isLength({ max: 300 })
       .withMessage("La descripción no puede superar los 300 caracteres."),
     check("asignatura_id")
-      .notEmpty()
-      .withMessage("La asignatura es obligatoria")
+      .optional()
       .isMongoId()
       .withMessage("El ID de la asignatura no es válido"),
   ],
+  validarJWT,
+  validarRol("admin"),
   actualizarBloque,
 );
 

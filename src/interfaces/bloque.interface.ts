@@ -1,4 +1,6 @@
 import { Types } from "mongoose";
+import type { actualizarBloqueValido } from "../validators/validar-actualizar-bloque.validator.js";
+import type z from "zod";
 
 export interface Bloque {
   asignatura_id: Types.ObjectId;
@@ -7,3 +9,5 @@ export interface Bloque {
   descripcion?: string;
   orden?: number;
 }
+
+export type DatosActualizarBloque = z.infer<typeof actualizarBloqueValido>;

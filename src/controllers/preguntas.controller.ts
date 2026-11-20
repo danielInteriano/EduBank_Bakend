@@ -2,18 +2,20 @@ import { type Request, type Response } from "express";
 import {
   obtenerPreguntaPorId,
   obtenerPreguntasPorIds,
-  crear,
+  crearPregunta,
   actualizar,
   eliminar,
-  obtenerOpcionesDePregunta,
+  agregarOpcionAPregunta,
 } from "../services/preguntas.service.js";
 import { catchError } from "../services/catch-error.service.js";
 import mongoose, { Types } from "mongoose";
+import { ManejarError } from "../classes/manejo-error.class.js";
 import {
   TipoPregunta,
-  type crearQuestion,
+  type Opciones,
+  type Pregunta,
+  type PreguntaConOpciones,
 } from "../interfaces/pregunta.interface.js";
-import { ManejarError } from "../classes/manejo-error.class.js";
 
 //función para obtener una pregunta
 export const getPregunta = async (req: Request, res: Response) => {
@@ -41,7 +43,8 @@ export const getPregunta = async (req: Request, res: Response) => {
       pregunta,
     });
   } catch (error) {
-    catchError();
+    console.error(error);
+    return res.status(500).json(catchError());
   }
 };
 
@@ -81,100 +84,23 @@ export const getPreguntasSeleccionadas = async (
       preguntas,
     });
   } catch (error) {
-    catchError();
+    console.error(error);
+    return res.status(500).json(catchError());
   }
 };
 
 //función para crear una pregunta
-export const crearPregunta = async (req: Request, res: Response) => {
+export const createPregunta = async (req: Request, res: Response) => {
   try {
-    const usuario_id = req.id;
+    const idUsuario = req.id;
 
-    if (!usuario_id || !Types.ObjectId.isValid(usuario_id)) {
+    if (!idUsuario || !Types.ObjectId.isValid(idUsuario)) {
       return res.status(401).json({
         ok: false,
         msg: "Usuario no autenticado o identificador inválido",
       });
     }
-
-    const {
-      asignatura_id,
-      bloque_id,
-      tema_id,
-      grado_id,
-      tipo,
-      enunciado,
-      respuesta_correcta,
-      opciones,
-      pares,
-      puntuacion,
-      imagen_url,
-      explicacion,
-      dificultad,
-    } = req.body;
-
-    if (!asignatura_id || bloque_id || tema_id) {
-      return res.status(400).json({
-        ok: false,
-        msg: "La asignatura, el bloque y el tema son obligatorios",
-      });
-    }
-
-    if (
-      !Types.ObjectId.isValid(asignatura_id) ||
-      !Types.ObjectId.isValid(bloque_id) ||
-      !Types.ObjectId.isValid(tema_id) ||
-      !Types.ObjectId.isValid(grado_id)
-    ) {
-      return res.status(400).json({
-        ok: false,
-        msg: "Uno o más identificadores no son válidos.",
-      });
-    }
-
-    if (!Object.values(TipoPregunta).includes(tipo as TipoPregunta)) {
-      return res.status(400).json({
-        ok: false,
-        msg: "El tipo de pregunta es obligatorio.",
-      });
-    }
-
-    if (typeof enunciado !== "string" || !enunciado.trim()) {
-      return res.status(400).json({
-        ok: false,
-        msg: "El enunciado es obligatorio.",
-      });
-    }
-
-    if (
-      typeof puntuacion !== "number" ||
-      !Number.isFinite(puntuacion) ||
-      puntuacion <= 0
-    ) {
-      return res.status(400).json({
-        ok: false,
-        msg: "La puntuación debe ser un número mayor que cero.",
-      });
-    }
-
-    //datos del servicio para crear la pregunta
-    const datosPregunta: crearQuestion = {
-      asignatura_id,
-      bloque_id,
-      tema_id,
-      grado_id,
-      tipo: tipo as TipoPregunta,
-      enunciado: enunciado.trim(),
-      ...(respuesta_correcta !== undefined && { respuesta_correcta }),
-      ...(opciones !== undefined && { opciones }),
-      ...(pares !== undefined && { pares }),
-      puntuacion,
-      ...(imagen_url !== undefined && { imagen_url }),
-      ...(explicacion !== undefined && { explicacion }),
-      ...(dificultad !== undefined && { dificultad }),
-    };
-
-    const pregunta = await crear(datosPregunta, usuario_id);
+    const pregunta = await crearPregunta(req.body, idUsuario);
 
     return res.status(200).json({
       ok: true,
@@ -182,7 +108,8 @@ export const crearPregunta = async (req: Request, res: Response) => {
       pregunta,
     });
   } catch (error) {
-    catchError();
+    console.error(error);
+    return res.status(500).json(catchError());
   }
 };
 
@@ -191,6 +118,7 @@ export const actualizarPregunta = async (req: Request, res: Response) => {
   try {
     const idUsuario = req.id;
     const { idQuestion } = req.params;
+    const cambios = req.body;
 
     //verificando el usuario autenticado
     if (!idUsuario || !Types.ObjectId.isValid(idUsuario)) {
@@ -216,47 +144,6 @@ export const actualizarPregunta = async (req: Request, res: Response) => {
       });
     }
 
-    //verificando los datos del body
-    if (!req.body || typeof req.body !== "object" || Array.isArray(req.body)) {
-      return res.status(400).json({
-        ok: false,
-        msg: "Los datos de actualización no son válidos.",
-      });
-    }
-
-    //campos que se pueden modificar de cada pregunta
-    const camposPermitidos = [
-      "asignatura_id",
-      "bloque_id",
-      "tema_id",
-      "grado_id",
-      "tipo",
-      "enunciado",
-      "respuesta_correcta",
-      "opciones",
-      "pares",
-      "puntuacion",
-      "imagen_url",
-      "explicacion",
-      "dificultad",
-    ];
-
-    //guardando en cambios todos los campos que no son undefined
-    const cambios = Object.fromEntries(
-      Object.entries(req.body).filter(
-        ([campo, valor]) =>
-          camposPermitidos.includes(campo) && valor !== undefined,
-      ),
-    );
-
-    //validando si en cambios hay campos que modificar de la pregunta
-    if (Object.keys(cambios).length === 0) {
-      return res.status(400).json({
-        ok: false,
-        msg: "No se recibieron campos válidos para actualizar.",
-      });
-    }
-
     const pregunta = await actualizar(idQuestion, idUsuario, cambios);
 
     return res.status(200).json({
@@ -265,7 +152,8 @@ export const actualizarPregunta = async (req: Request, res: Response) => {
       pregunta,
     });
   } catch (error) {
-    catchError();
+    console.error(error);
+    return res.status(500).json(catchError());
   }
 };
 
@@ -294,33 +182,70 @@ export const eliminarPregunta = async (req: Request, res: Response) => {
       pregunta,
     });
   } catch (error) {
-    catchError();
+    console.error(error);
+    return res.status(500).json(catchError());
   }
 };
 
 //función para agregar una opción a una pregunta de selección única o múltiple
-export const agregarOpcion = async (req: Request, res: Response) => {
+export const agregarOpcion = async (
+  req: Request<{ idPregunta: string }, {}, Opciones>,
+  res: Response,
+) => {
   try {
-    const idPregunta = req.params.idPregunta;
+    const { idPregunta } = req.params;
     const idUsuario = req.id;
 
-    if (typeof idPregunta !== "string") {
+    if (
+      typeof idPregunta !== "string" ||
+      !idPregunta.trim() ||
+      !Types.ObjectId.isValid(idPregunta)
+    ) {
       throw new ManejarError("ID de pregunta no válido", 400);
     }
 
-    if (!idUsuario) {
-      throw new ManejarError("Usuario no autenticado", 401);
+    if (
+      typeof idUsuario !== "string" ||
+      !idUsuario.trim() ||
+      !Types.ObjectId.isValid(idUsuario)
+    ) {
+      throw new ManejarError("ID de usuario no válido", 400);
     }
 
-    const pregunta = await obtenerOpcionesDePregunta(idPregunta, idUsuario);
+    const pregunta = await agregarOpcionAPregunta(
+      idPregunta,
+      idUsuario,
+      req.body,
+    );
+
+    if (!pregunta) {
+      throw new ManejarError(
+        "Pregunta no encontrada o no permite opciones",
+        400,
+      );
+    }
+
+    if (!preguntaTieneOpciones(pregunta)) {
+      throw new ManejarError("La pregunta no permite opciones", 400);
+    }
 
     return res.status(200).json({
       ok: true,
-      msg: "Opción agregada exitosamente.",
-      totalOpciones: pregunta?.opciones?.length,
+      msg: "Opción agregada exitosamente",
+      totalOpciones: pregunta.opciones?.length ?? 0,
       pregunta,
     });
   } catch (error) {
-    catchError();
+    console.error(error);
+    return res.status(500).json(catchError());
   }
+};
+
+const preguntaTieneOpciones = (
+  pregunta: Pregunta,
+): pregunta is PreguntaConOpciones => {
+  return (
+    pregunta.tipo === TipoPregunta.SELECCION_UNICA ||
+    pregunta.tipo === TipoPregunta.SELECCION_MULTIPLE
+  );
 };

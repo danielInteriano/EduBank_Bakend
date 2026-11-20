@@ -1,7 +1,7 @@
 import { type Request, type Response } from "express";
 import { catchError } from "../services/catch-error.service.js";
 import { obtenerBloquePorId } from "../services/bloques.service.js";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import {
   actualizandoCamposTema,
   contarTemas,
@@ -12,6 +12,7 @@ import {
   obtenerPreguntasPorTema,
 } from "../services/temas.service.js";
 import TTema from "../models/tema.model.js";
+import { actualizarTemaValido } from "../validators/validar-actualizar-tema.validator.js";
 
 //función para obtener un tema
 export const getTema = async (req: Request, res: Response) => {
@@ -25,7 +26,8 @@ export const getTema = async (req: Request, res: Response) => {
   }
 
   try {
-    const tema = obtenerTemaPorId(id);
+    const tema = await obtenerTemaPorId(id);
+
     if (!tema) {
       return res.status(404).json({
         ok: false,
@@ -87,7 +89,7 @@ export const getPreguntasPorTema = async (req: Request, res: Response) => {
 
 //función para crear un bloque
 export const crearTema = async (req: Request, res: Response) => {
-  const { idBloque, nombre } = req.body;
+  const { bloque_id, nombre } = req.body;
 
   if (typeof nombre !== "string" || !nombre.trim()) {
     return res.status(400).json({
@@ -96,7 +98,7 @@ export const crearTema = async (req: Request, res: Response) => {
     });
   }
 
-  if (typeof idBloque !== "string" || !mongoose.isValidObjectId(idBloque)) {
+  if (typeof bloque_id !== "string" || !Types.ObjectId.isValid(bloque_id)) {
     return res.status(400).json({
       ok: false,
       msg: "El id del bloque no es válido.",
@@ -104,7 +106,7 @@ export const crearTema = async (req: Request, res: Response) => {
   }
 
   try {
-    const bloqueExiste = await obtenerBloquePorId(idBloque);
+    const bloqueExiste = await obtenerBloquePorId(bloque_id);
     const temaExiste = await obtenerTemaPorNombre(nombre);
 
     if (!bloqueExiste) {
@@ -121,18 +123,24 @@ export const crearTema = async (req: Request, res: Response) => {
       });
     }
 
-    const tema = new TTema(req.body);
-    await tema.save();
+    const tema = await TTema.create(req.body);
+
+    return res.status(200).json({
+      ok: true,
+      msg: "Tema creado exitosamente.",
+      tema,
+    });
   } catch (error) {
-    catchError();
+    console.error(error);
+    return res.status(500).json(catchError());
   }
 };
 
 //función para actualizar un bloque
 export const actualizarTema = async (req: Request, res: Response) => {
-  const id = req.params.id;
+  const idTema = req.params.id;
 
-  if (typeof id !== "string" || !id.trim()) {
+  if (typeof idTema !== "string" || !idTema.trim()) {
     return res.status(400).json({
       ok: false,
       msg: "El id del tema no es válido",
@@ -140,7 +148,7 @@ export const actualizarTema = async (req: Request, res: Response) => {
   }
 
   try {
-    const temaDB = await obtenerTemaPorId(id);
+    const temaDB = await obtenerTemaPorId(idTema);
 
     if (!temaDB) {
       return res.status(404).json({
@@ -149,40 +157,38 @@ export const actualizarTema = async (req: Request, res: Response) => {
       });
     }
 
-    //si el tema está, entonces se actualiza.
-    const { nombre, descripcion, ...campos } = req.body;
+    //validando los campos para actualizar
+    const resultado = actualizarTemaValido.safeParse(req.body);
 
-    if (temaDB.nombre !== nombre) {
-      const temaRegistrado = await obtenerTemaPorNombre(nombre);
-      if (temaRegistrado) {
-        return res.status(400).json({
-          ok: false,
-          msg: "Ya existe un tema con ese nombre.",
-        });
-      }
+    if (!resultado.success) {
+      return res.status(400).json({
+        ok: false,
+        errores: resultado.error.issues,
+      });
     }
 
     //Actualizando los campos del tema
     const temaActualizado = await actualizandoCamposTema(
-      id,
-      nombre,
-      descripcion,
+      idTema,
+      resultado.data,
     );
 
     res.status(200).json({
       ok: true,
-      usuario: temaActualizado,
+      msg: "Tema actualizado exitosamente.",
+      tema: temaActualizado,
     });
   } catch (error) {
-    catchError();
+    console.error(error);
+    return res.status(500).json(catchError());
   }
 };
 
 //función para eliminar un tema
 export const eliminarTema = async (req: Request, res: Response) => {
-  const id = req.params.id;
+  const idTema = req.params.id;
 
-  if (typeof id !== "string" || !id.trim()) {
+  if (typeof idTema !== "string" || !idTema.trim()) {
     return res.status(400).json({
       ok: false,
       msg: "El id del tema no es válido.",
@@ -190,7 +196,7 @@ export const eliminarTema = async (req: Request, res: Response) => {
   }
 
   try {
-    const encontrado = await obtenerTemaPorId(id);
+    const encontrado = await obtenerTemaPorId(idTema);
 
     if (!encontrado) {
       return res.status(404).json({
@@ -200,12 +206,15 @@ export const eliminarTema = async (req: Request, res: Response) => {
     }
 
     //Si el tema existe, se cambia su estado "activo" a false
-    await eliminar(id);
+    const temaEliminado = await eliminar(idTema);
+
     return res.status(200).json({
       ok: true,
       msg: "Tema eliminado exitosamente.",
+      tema: temaEliminado,
     });
   } catch (error) {
-    catchError();
+    console.error(error);
+    return res.status(500).json(catchError());
   }
 };

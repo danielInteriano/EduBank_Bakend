@@ -2,15 +2,13 @@ import { Router } from "express";
 import { validarJWT } from "../middlewares/validar-jwt.middleware.js";
 import { validarRol } from "../middlewares/validar-rol.middleware.js";
 import {
+  actualizarPregunta,
   agregarOpcion,
+  createPregunta,
+  eliminarPregunta,
   getPregunta,
   getPreguntasSeleccionadas,
 } from "../controllers/preguntas.controller.js";
-import {
-  actualizarAsignatura,
-  crearAsignatura,
-  eliminarAsignatura,
-} from "../controllers/asignaturas.controller.js";
 import { check } from "express-validator";
 
 export const preguntasRouter = Router();
@@ -24,8 +22,6 @@ preguntasRouter.get("/preguntas", validarJWT, getPreguntasSeleccionadas);
 //crear una pregunta
 preguntasRouter.post(
   "/",
-  validarJWT,
-  validarRol("admin"),
   [
     check("usuario_id")
       .notEmpty()
@@ -53,13 +49,18 @@ preguntasRouter.post(
     check("enunciado")
       .notEmpty()
       .withMessage("El enunciado de la pregunta es obligatorio."),
+    check("respuesta_correcta")
+      .notEmpty()
+      .withMessage("La respuesta correcta es obligatoria."),
     check("puntuacion")
       .notEmpty()
       .withMessage("El puntaje de la pregunta es obligatorio.")
       .isNumeric()
       .withMessage("El puntaje debe ser un número."),
   ],
-  crearAsignatura,
+  validarJWT,
+  validarRol("admin"),
+  createPregunta,
 );
 
 //actualizar una pregunta
@@ -100,7 +101,7 @@ preguntasRouter.patch(
       .isNumeric()
       .withMessage("El puntaje debe ser un número."),
   ],
-  actualizarAsignatura,
+  actualizarPregunta,
 );
 
 //eliminar una pregunta cambiando su estado activo "true" a "false"
@@ -108,7 +109,7 @@ preguntasRouter.delete(
   "/:id",
   validarJWT,
   validarRol("admin"),
-  eliminarAsignatura,
+  eliminarPregunta,
 );
 
 //agregar opciones a una pregunta del tipo: SELECCION_UNICA o SELECCION_MULTIPLE

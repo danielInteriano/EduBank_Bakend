@@ -1,7 +1,7 @@
 import { Types } from "mongoose";
 import Signature from "../models/asignatura.model.js";
 import { validarId } from "../utils/validar-id.js";
-import type { CamposActualizarAsignatura } from "../interfaces/asignatura.interface.js";
+import type { DatosActualizarAsignatura } from "../interfaces/asignatura.interface.js";
 
 //obtener una asignatura
 export const obtenerAsignaturaPorId = async (id: string) => {
@@ -36,7 +36,7 @@ export const obtenerAsignaturaPorNombre = async (nombre: string) => {
 //actualizar los campos de una asignatura
 export const actualizandoCamposAsignatura = async (
   id: string,
-  datos: CamposActualizarAsignatura,
+  datos: DatosActualizarAsignatura,
 ) => {
   const asignaturaActualizada = await Signature.findByIdAndUpdate(
     id,

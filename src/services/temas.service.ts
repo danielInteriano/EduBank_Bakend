@@ -5,10 +5,13 @@ import BBloque from "../models/bloque.model.js";
 import TTema from "../models/tema.model.js";
 import Question from "../models/pregunta.model.js";
 import { catchError } from "./catch-error.service.js";
+import { validarId } from "../utils/validar-id.js";
+import type { DatosActualizarTema } from "../interfaces/tema.interface.js";
 
 //obtener un tema
 export const obtenerTemaPorId = async (id: string) => {
-  const tema = BTema.findById(id);
+  const idTema = validarId(id);
+  const tema = BTema.findById(idTema);
   return tema;
 };
 
@@ -65,40 +68,32 @@ export const obtenerPreguntasPorTema = async (idTema: string) => {
 
 //actualizar los campos de un tema
 export const actualizandoCamposTema = async (
-  id: string,
-  nombre: string,
-  descripcion: string,
+  idTema: string,
+  datos: DatosActualizarTema,
 ) => {
-  const camposActualizados: Record<string, unknown> = {};
-
-  if (nombre !== undefined) {
-    camposActualizados.nombre = nombre;
-  }
-
-  if (descripcion !== undefined) {
-    camposActualizados.descripcion = descripcion;
-  }
-
+  const temaId = validarId(idTema);
   const temaActualizado = await BTema.findByIdAndUpdate(
-    id,
-    { $set: camposActualizados },
+    temaId,
+    { $set: datos },
     {
-      new: true,
+      returnDocument: "after",
       runValidators: true,
     },
   );
 
-  return camposActualizados;
+  return temaActualizado;
 };
 
 //eliminar un tema cambiando su estado a no activo
 export const eliminar = async (id: string) => {
-  BTema.findByIdAndUpdate(
-    id,
+  const idTema = validarId(id);
+  const temaEliminado = await BTema.findByIdAndUpdate(
+    idTema,
     { activo: false },
     {
-      new: true,
+      returnDocument: "after",
       runValidators: true,
     },
   );
+  return temaEliminado;
 };

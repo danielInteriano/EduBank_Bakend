@@ -26,7 +26,8 @@ export interface Pares {
   derecha: string;
 }
 
-export interface Pregunta {
+export interface PreguntaBase {
+  _id?: Types.ObjectId;
   usuario_id: Types.ObjectId;
   asignatura_id: Types.ObjectId;
   bloque_id: Types.ObjectId;
@@ -34,37 +35,87 @@ export interface Pregunta {
   grado_id: Types.ObjectId;
   tipo: TipoPregunta;
   enunciado: string;
-  respuesta_correcta?: string | boolean;
-  opciones?: Opciones[];
-  pares?: Pares[];
   puntuacion: number;
+  nivel_dificultad: NivelDificultad;
+  activo: boolean;
   imagen_url?: string;
   explicacion?: string;
-  dificultad?: NivelDificultad;
-  activo: boolean;
   fecha_creacion: Date;
   fecha_actualizacion: Date;
 }
 
-export type crearQuestion = Omit<
-  Pregunta,
-  "usuario_id" | "activo" | "fecha_creacion" | "fecha_actualizacion"
->;
+export interface PreguntaSeleccionUnica extends PreguntaBase {
+  tipo: TipoPregunta.SELECCION_UNICA;
+  opciones: Opciones[];
+}
 
-export type DatosFinales = {
-  tipo: TipoPregunta;
-  enunciado: string;
-  respuesta_correcta?: string | boolean;
-  opciones?: Opciones[];
-  pares?: Pares[];
-  puntuacion: number;
-  imagen_url?: string;
-  explicacion?: string;
-  dificultad?: NivelDificultad;
-  asignatura_id: Types.ObjectId | string;
-  bloque_id: Types.ObjectId | string;
-  tema_id: Types.ObjectId | string;
-  grado_id: Types.ObjectId | string;
-};
+export interface PreguntaSeleccionMultiple extends PreguntaBase {
+  tipo: TipoPregunta.SELECCION_MULTIPLE;
+  opciones: Opciones[];
+}
 
-export type ActualizarQuestion = Partial<crearQuestion>;
+export interface PreguntaVerdaderoFalso extends PreguntaBase {
+  tipo: TipoPregunta.VERDADERO_FALSO;
+  respuesta_correcta: boolean;
+}
+
+export interface PreguntaCorrectoIncorrecto extends PreguntaBase {
+  tipo: TipoPregunta.CORRECTO_INCORRECTO;
+  respuesta_correcta: boolean;
+}
+
+export interface PreguntaTerminosPareados extends PreguntaBase {
+  tipo: TipoPregunta.TERMINOS_PAREADOS;
+  pares: Pares[];
+}
+
+export interface PreguntaCompletacion extends PreguntaBase {
+  tipo: TipoPregunta.COMPLETACION;
+  respuesta_correcta: string;
+}
+
+export interface PreguntaRespuestaBreve extends PreguntaBase {
+  tipo: TipoPregunta.RESPUESTA_BREVE;
+  respuesta_correcta: string;
+}
+
+export type Pregunta =
+  | PreguntaSeleccionUnica
+  | PreguntaSeleccionMultiple
+  | PreguntaVerdaderoFalso
+  | PreguntaCorrectoIncorrecto
+  | PreguntaTerminosPareados
+  | PreguntaCompletacion
+  | PreguntaRespuestaBreve;
+
+export type DatosCrearPregunta<T extends Pregunta = Pregunta> =
+  T extends Pregunta
+    ? Omit<
+        T,
+        | "_id"
+        | "usuario_id"
+        | "activo"
+        | "fecha_creacion"
+        | "fecha_actualizacion"
+      >
+    : never;
+
+export type DatosActualizarPregunta<T extends Pregunta = Pregunta> =
+  T extends Pregunta
+    ? Partial<
+        Omit<
+          T,
+          | "_id"
+          | "usuario_id"
+          | "activo"
+          | "fecha_creacion"
+          | "fecha_actualizacion"
+        >
+      >
+    : never;
+
+export type PreguntaConOpciones =
+  | PreguntaSeleccionUnica
+  | PreguntaSeleccionMultiple;
+
+export type PreguntaConPares = PreguntaTerminosPareados;
