@@ -1,8 +1,8 @@
 import type { ClientSession, Types } from "mongoose";
 import {
   Estado,
-  type datosExamenActualizar,
-  type datosExamenCrear,
+  type DatosActualizarExamen,
+  type DatosCrearExamen,
   type Examen,
 } from "../interfaces/examen.interface.js";
 import ExamenQuestion from "../models/examen-pregunta.model.js";
@@ -79,7 +79,7 @@ export const validarEncabezado = async (
 //crear un examen
 export const createExamen = async (
   idUsuario: string,
-  datos: datosExamenCrear,
+  datos: DatosCrearExamen,
 ) => {
   const sesion = await mongoose.startSession();
   try {
@@ -159,7 +159,7 @@ export const createExamen = async (
 export const actualizarExam = async (
   idUsuario: string,
   idExamen: string,
-  datos: datosExamenActualizar,
+  datos: DatosActualizarExamen,
 ) => {
   const usuarioId = validarId(idUsuario);
   const examenId = validarId(idExamen);

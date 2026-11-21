@@ -19,9 +19,9 @@ import {
 
 //función para obtener una pregunta
 export const getPregunta = async (req: Request, res: Response) => {
-  const id = req.params.id;
+  const idQuestion = req.params.id;
 
-  if (typeof id !== "string" || !id.trim()) {
+  if (typeof idQuestion !== "string" || !idQuestion.trim()) {
     return res.status(400).json({
       ok: false,
       msg: "El id de la pregunta no es válido",
@@ -29,7 +29,7 @@ export const getPregunta = async (req: Request, res: Response) => {
   }
 
   try {
-    const pregunta = obtenerPreguntaPorId(id);
+    const pregunta = await obtenerPreguntaPorId(idQuestion);
 
     if (!pregunta) {
       return res.status(404).json({
@@ -50,37 +50,45 @@ export const getPregunta = async (req: Request, res: Response) => {
 
 //función para obtener varias preguntas
 export const getPreguntasSeleccionadas = async (
-  req: Request,
+  req: Request<{}, {}, string[]>,
   res: Response,
 ) => {
   const ids = req.body;
 
-  if (
-    !Array.isArray(ids) ||
-    ids.length === 0 ||
-    ids.some(
-      (id: unknown) => typeof id !== "string" || !mongoose.isValidObjectId(id),
-    )
-  ) {
+  if (!Array.isArray(ids) || ids.length === 0) {
     return res.status(400).json({
       ok: false,
-      msg: "Debes enviar un arreglo de IDs válidos",
+      msg: "Debes enviar un arreglo de IDs.",
     });
   }
 
   //Controlar el número de preguntas solicitadas
-  if (ids.length > 50) {
+  if (ids.length > 25) {
     return res.status(400).json({
       ok: false,
-      msg: "No puedes seleccionar más de 50 preguntas",
+      msg: "No puedes seleccionar más de 25 preguntas",
+    });
+  }
+
+  //Validar que todos los IDs sean válidos
+  if (
+    ids.some(
+      (id) => typeof id !== "string" || !mongoose.Types.ObjectId.isValid(id),
+    )
+  ) {
+    return res.status(400).json({
+      ok: false,
+      msg: "El arreglo contiene uno o más IDs no válidos.",
     });
   }
 
   try {
     const preguntas = await obtenerPreguntasPorIds(ids);
+
     return res.status(200).json({
       ok: true,
-      total: preguntas.length,
+      totalSolicitadas: ids.length,
+      totalEncontradas: preguntas.length,
       preguntas,
     });
   } catch (error) {
@@ -117,7 +125,7 @@ export const createPregunta = async (req: Request, res: Response) => {
 export const actualizarPregunta = async (req: Request, res: Response) => {
   try {
     const idUsuario = req.id;
-    const { idQuestion } = req.params;
+    const idQuestion = req.params.id;
     const cambios = req.body;
 
     //verificando el usuario autenticado

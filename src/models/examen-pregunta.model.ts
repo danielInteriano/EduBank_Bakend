@@ -16,12 +16,12 @@ const ExamenPreguntaSchema = new Schema<ExamenPregunta>(
     },
     numero: {
       type: Number,
-      required: true,
+      required: false,
       min: 1,
     },
     puntuacion: {
       type: Number,
-      required: true,
+      required: false,
       min: 0,
     },
     orden: {

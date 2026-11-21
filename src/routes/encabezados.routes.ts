@@ -13,7 +13,7 @@ import { check } from "express-validator";
 export const encabezadosRouter = Router();
 
 //obtener el encabezado para un examen
-encabezadosRouter.get("/", validarJWT, getEncabezado);
+encabezadosRouter.get("/:id", validarJWT, getEncabezado);
 
 //crear el encabezado de un examen
 encabezadosRouter.post(
@@ -86,6 +86,7 @@ encabezadosRouter.patch(
       .withMessage("La sección es obligatoria.")
       .trim(),
     check("instrucciones")
+      .optional()
       .isString()
       .withMessage("Las instrucciones deben ser un texto.")
       .notEmpty()

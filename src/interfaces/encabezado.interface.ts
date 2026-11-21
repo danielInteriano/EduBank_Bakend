@@ -9,7 +9,7 @@ export interface Encabezado {
   valor_total: number;
   grado: string;
   seccion: number;
-  activo: Boolean;
+  activo: boolean;
   fecha_creacion: Date;
   fecha_actualizacion: Date;
   fecha?: Date;
@@ -18,14 +18,31 @@ export interface Encabezado {
   instrucciones?: string;
 }
 
-export type crearEncabezado = Partial<
+export type DatosCrearEncabezado = Pick<Encabezado, "asignatura_id"> &
+  Partial<
+    Pick<
+      Encabezado,
+      | "centro_educativo"
+      | "parcial"
+      | "valor_total"
+      | "grado"
+      | "seccion"
+      | "nombre_estudiante"
+      | "periodo_academico"
+      | "instrucciones"
+      | "fecha"
+    >
+  >;
+
+export type DatosActualizarEncabezado = Partial<
   Pick<
     Encabezado,
-    | "id"
     | "centro_educativo"
     | "parcial"
+    | "valor_total"
     | "grado"
     | "seccion"
+    | "fecha"
     | "nombre_estudiante"
     | "periodo_academico"
     | "instrucciones"

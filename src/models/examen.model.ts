@@ -6,12 +6,12 @@ const ExamenSchema = new Schema<Examen>(
     usuario_id: {
       type: Schema.Types.ObjectId,
       ref: "Usuario",
-      required: [true, "El id de usuario es obligatorio."],
+      required: true,
     },
     encabezado_id: {
       type: Schema.Types.ObjectId,
-      ref: "EncamezadoExamen",
-      required: [true, "El id del encabezado es obligatorio."],
+      ref: "EncabezadoExamen",
+      required: true,
     },
     titulo: {
       type: String,
@@ -26,12 +26,10 @@ const ExamenSchema = new Schema<Examen>(
     },
     cantidad_preguntas: {
       type: Number,
-      required: true,
       min: 1,
     },
     puntuacion_total: {
       type: Number,
-      required: true,
       min: 0,
     },
     descripcion: {

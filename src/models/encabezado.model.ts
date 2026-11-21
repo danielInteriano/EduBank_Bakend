@@ -8,32 +8,29 @@ const EncabezadoSchema = new Schema<Encabezado>(
     usuario_id: {
       type: Schema.Types.ObjectId,
       ref: Usuario,
-      required: [true, "El usuario es obligatorio."],
+      required: true,
       trim: true,
     },
     asignatura_id: {
       type: Schema.Types.ObjectId,
       ref: Signature,
-      required: [true, "La asignatura es obligatoria."],
+      required: true,
       trim: true,
     },
     centro_educativo: {
       type: String,
-      required: true,
       trim: true,
     },
     parcial: {
       type: String,
-      required: false,
       trim: true,
     },
     valor_total: {
       type: Number,
-      required: false,
     },
     fecha: {
       type: Date,
-      required: true,
+      required: false,
     },
     nombre_estudiante: {
       type: String,
@@ -42,12 +39,11 @@ const EncabezadoSchema = new Schema<Encabezado>(
     },
     grado: {
       type: String,
-      required: true,
+      required: false,
       trim: true,
     },
     seccion: {
       type: Number,
-      required: true,
     },
     periodo_academico: {
       type: Number,

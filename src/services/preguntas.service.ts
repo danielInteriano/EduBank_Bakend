@@ -1,7 +1,6 @@
 import { Types, type ClientSession } from "mongoose";
 import { ManejarError } from "../classes/manejo-error.class.js";
 import {
-  NivelDificultad,
   TipoPregunta,
   type DatosActualizarPregunta,
   type DatosCrearPregunta,
@@ -11,21 +10,32 @@ import Signature from "../models/asignatura.model.js";
 import BBloque from "../models/bloque.model.js";
 import Question from "../models/pregunta.model.js";
 import TTema from "../models/tema.model.js";
-import { catchError } from "./catch-error.service.js";
 import { validarId } from "../utils/validar-id.js";
+import type { PreguntaSeleccionada } from "../interfaces/examen.interface.js";
 
 //obtener una pregunta
 export const obtenerPreguntaPorId = async (id: string) => {
-  const pregunta = Question.findById(id);
+  const idPregunta = validarId(id);
+  const pregunta = await Question.findById(idPregunta);
   return pregunta;
 };
 
 //obtener un conjunto de preguntas
 export const obtenerPreguntasPorIds = async (ids: string[]) => {
-  return Question.find({
-    _id: { $in: ids },
+  const idPreguntas = ids.map(validarId);
+  const preguntas = await Question.find({
+    _id: { $in: idPreguntas },
     activo: true,
   });
+
+  //mantener el orden de las preguntas según el arreglo de ids proporcionado
+  const preguntasOrdenadas = idPreguntas
+    .map((id) =>
+      preguntas.find((pregunta) => pregunta._id.toString() === id.toString()),
+    )
+    .filter((pregunta) => pregunta !== undefined);
+
+  return preguntasOrdenadas;
 };
 
 //crear una pregunta
@@ -238,7 +248,7 @@ export const eliminar = async (id: string, idUsuario: string) => {
       $set: { activo: false },
     },
     {
-      new: true,
+      returnDocument: "after",
       runValidators: true,
     },
   );
@@ -257,60 +267,56 @@ export const agregarOpcionAPregunta = async (
   idUsuario: string,
   nuevaOpcion: Opciones,
 ) => {
-  try {
-    const preguntaId = validarId(idPregunta);
-    const usuarioId = validarId(idUsuario);
+  const preguntaId = validarId(idPregunta);
+  const usuarioId = validarId(idUsuario);
 
-    //validando los datos de la nueva opción
-    if (!nuevaOpcion.opcion.trim()) {
-      throw new ManejarError("El texto de la opción es obligatorio.", 400);
-    }
+  //validando los datos de la nueva opción
+  if (!nuevaOpcion.opcion.trim()) {
+    throw new ManejarError("El texto de la opción es obligatorio.", 400);
+  }
 
-    if (typeof nuevaOpcion.esCorrecta !== "boolean") {
-      throw new ManejarError("Debe indicar si la opción es correcta.", 400);
-    }
+  if (typeof nuevaOpcion.esCorrecta !== "boolean") {
+    throw new ManejarError("Debe indicar si la opción es correcta.", 400);
+  }
 
-    const tiposConOpciones: TipoPregunta[] = [
-      TipoPregunta.SELECCION_UNICA,
-      TipoPregunta.SELECCION_MULTIPLE,
-    ];
+  const tiposConOpciones: TipoPregunta[] = [
+    TipoPregunta.SELECCION_UNICA,
+    TipoPregunta.SELECCION_MULTIPLE,
+  ];
 
-    const pregunta = await Question.findOneAndUpdate(
-      {
-        _id: preguntaId,
-        usuario_id: usuarioId,
-        activo: true,
-        tipo: { $in: tiposConOpciones },
-      },
-      {
-        $push: {
-          opciones: {
-            opcion: nuevaOpcion.opcion,
-            esCorrecta: nuevaOpcion.esCorrecta,
-          },
+  const pregunta = await Question.findOneAndUpdate(
+    {
+      _id: preguntaId,
+      usuario_id: usuarioId,
+      activo: true,
+      tipo: { $in: tiposConOpciones },
+    },
+    {
+      $push: {
+        opciones: {
+          opcion: nuevaOpcion.opcion,
+          esCorrecta: nuevaOpcion.esCorrecta,
         },
       },
-      {
-        returnDocument: "after",
-        runValidators: true,
-      },
-    ).select("tipo opciones");
+    },
+    {
+      returnDocument: "after",
+      runValidators: true,
+    },
+  ).select("enunciado tipo opciones puntuacion");
 
-    if (!pregunta) {
-      throw new ManejarError(
-        "No se encontró la pregunta o no tiene opciones.",
-        400,
-      );
-    }
-
-    return pregunta;
-  } catch (error) {
-    catchError();
+  if (!pregunta) {
+    throw new ManejarError(
+      "No se encontró la pregunta o no tiene opciones.",
+      400,
+    );
   }
+
+  return pregunta;
 };
 
 //función para validar un conjunto de preguntas
-/* export const validarPreguntas = (preguntas: PreguntaSeleccionada[]): void => {
+export const validarPreguntas = (preguntas: PreguntaSeleccionada[]): void => {
   //validando si el arreglo "preguntas" tiene datos
   if (!Array.isArray(preguntas) || preguntas.length === 0) {
     throw new ManejarError("Debe seleccionar al menos una pregunta", 400);
@@ -360,7 +366,7 @@ export const obtenerPreguntasValidas = async (
   });
 
   const preguntasDB = await Question.find({
-    _id: { $in: ids },
+    id: { $in: ids },
     usuario_id: usuarioId,
     activo: true,
   }).session(sesion);
@@ -396,4 +402,4 @@ export const obtenerPreguntasValidas = async (
       puntuacion,
     };
   });
-}; */
+};

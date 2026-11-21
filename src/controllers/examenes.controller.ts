@@ -8,7 +8,6 @@ import {
   ObtenerExamenes,
   ObtenerExamenPorId,
 } from "../services/examenes.service.js";
-import { validarId } from "../utils/validar-id.js";
 import { catchError } from "../services/catch-error.service.js";
 
 //función para obtener un examen por su id
@@ -31,7 +30,8 @@ export const getExamen = async (req: Request, res: Response) => {
       examen,
     });
   } catch (error) {
-    catchError();
+    console.error(error);
+    return res.status(500).json(catchError());
   }
 };
 
@@ -45,7 +45,8 @@ export const getExamenes = async (req: Request, res: Response) => {
       examenes,
     });
   } catch (error) {
-    catchError();
+    console.error(error);
+    return res.status(500).json(catchError());
   }
 };
 
@@ -66,7 +67,8 @@ export const crearExamen = async (req: Request, res: Response) => {
       examen,
     });
   } catch (error) {
-    catchError();
+    console.error(error);
+    return res.status(500).json(catchError());
   }
 };
 
@@ -120,5 +122,8 @@ export const eliminarExamen = async (req: Request, res: Response) => {
       msg: "Examen eliminado exitosamente.",
       examen,
     });
-  } catch (error) {}
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(catchError());
+  }
 };

@@ -1,27 +1,46 @@
+import { Types } from "mongoose";
 import { ManejarError } from "../classes/manejo-error.class.js";
-import type { crearEncabezado } from "../interfaces/encabezado.interface.js";
+import type {
+  DatosActualizarEncabezado,
+  DatosCrearEncabezado,
+} from "../interfaces/encabezado.interface.js";
 import EncabezadoExamen from "../models/encabezado.model.js";
 import { validarId } from "../utils/validar-id.js";
 
-//obtener un encabezado de examen por su id
+//crear un encabezado
+export const createEncabezado = async (
+  campos: DatosCrearEncabezado,
+  idUsuario: string,
+) => {
+  const usuarioId = validarId(idUsuario);
+  const encabezado = await EncabezadoExamen.create({
+    ...campos,
+    usuario_id: usuarioId,
+  });
+
+  return encabezado;
+};
+
 export const obtenerEncabezado = async (id: string) => {
   const idEncabezado = validarId(id);
-  return EncabezadoExamen.findById(idEncabezado);
+  const encadezado = await EncabezadoExamen.findById(idEncabezado);
+  return encadezado;
 };
 
 //actualizar los campos de un encabezado
-export const actualizarCampos = async (campos: crearEncabezado) => {
-  const id = campos.id;
-
-  if (typeof id !== "undefined") {
-    throw new ManejarError("El id no existe", 404);
-  }
+export const actualizarCampos = async (
+  campos: DatosActualizarEncabezado,
+  idEncabezado: string,
+  idUsuario: string,
+) => {
+  const encabezadoId = validarId(idEncabezado);
+  const usuarioId = validarId(idUsuario);
 
   const encabezadoActualizado = await EncabezadoExamen.findByIdAndUpdate(
-    id,
-    { $set: campos },
+    { _id: encabezadoId, usuario_id: new Types.ObjectId(usuarioId) },
+    { $set: { ...campos, fecha_actualizacion: new Date() } },
     {
-      new: true,
+      returnDocument: "after",
       runValidators: true,
     },
   );
@@ -31,16 +50,20 @@ export const actualizarCampos = async (campos: crearEncabezado) => {
 
 //eliminar un encabezado por su id
 export const eliminar = async (id: string) => {
-  if (!id) {
-    throw new ManejarError("El id es obligatorio para eliminar.", 401);
+  const idEncabezado = validarId(id);
+
+  if (!idEncabezado) {
+    throw new ManejarError("El id del encabezado no es válido", 400);
   }
 
-  EncabezadoExamen.findByIdAndUpdate(
-    id,
+  const encabezadoEliminado = await EncabezadoExamen.findByIdAndUpdate(
+    idEncabezado,
     { activo: false },
     {
-      new: true,
+      returnDocument: "after",
       runValidators: true,
     },
   );
+
+  return encabezadoEliminado;
 };

@@ -32,14 +32,14 @@ export interface ExamenPregunta {
   orden: number;
 }
 
-export interface datosExamenCrear {
+export interface DatosCrearExamen {
   encabezado_id: string;
   titulo: string;
   descripcion: string;
   preguntas: PreguntaSeleccionada[];
 }
 
-export interface datosExamenActualizar {
+export interface DatosActualizarExamen {
   encabezado_id?: string;
   titulo?: string;
   descripcion?: string;

@@ -13,11 +13,11 @@ import { check } from "express-validator";
 
 export const preguntasRouter = Router();
 
-//obtener un tema
+//obtener una pregunta por su id
 preguntasRouter.get("/:id", validarJWT, getPregunta);
 
 //obtener todas las preguntas seleccionadas
-preguntasRouter.get("/preguntas", validarJWT, getPreguntasSeleccionadas);
+preguntasRouter.post("/seleccionadas", validarJWT, getPreguntasSeleccionadas);
 
 //crear una pregunta
 preguntasRouter.post(
