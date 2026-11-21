@@ -13,10 +13,10 @@ import { check } from "express-validator";
 export const examenesRouter = Router();
 
 //obtener un examen
-examenesRouter.get("/", validarJWT, getExamen);
+examenesRouter.get("/:id", validarJWT, getExamen);
 
 //obtener todos los examenes para poder mostrarlos
-examenesRouter.get("/examenes", validarJWT, getExamenes);
+examenesRouter.get("/", validarJWT, getExamenes);
 
 //crear un examen
 examenesRouter.post(
@@ -80,6 +80,7 @@ examenesRouter.patch(
       .withMessage("El título del examen no puede estar vacío.")
       .trim(),
     check("pdf_url")
+      .optional()
       .isString()
       .withMessage("El título del examen debe ser un texto.")
       .notEmpty()

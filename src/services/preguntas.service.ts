@@ -322,13 +322,9 @@ export const validarPreguntas = (preguntas: PreguntaSeleccionada[]): void => {
     throw new ManejarError("Debe seleccionar al menos una pregunta", 400);
   }
 
-  const ids = preguntas.map((p) => {
-    p.pregunta_id;
-  });
+  const ids = preguntas.map((p) => p.pregunta_id);
 
-  const ordenes = preguntas.map((p) => {
-    p.orden;
-  });
+  const ordenes = preguntas.map((p) => p.orden);
 
   //validando si el arreglo "ids" tiene datos válidos
   if (ids.some((id) => typeof id !== "string")) {
@@ -347,7 +343,7 @@ export const validarPreguntas = (preguntas: PreguntaSeleccionada[]): void => {
     throw new ManejarError("El orden de las preguntas es único", 400);
   }
 
-  for (const id in ids) {
+  for (const id of ids) {
     validarId(id);
   }
 };

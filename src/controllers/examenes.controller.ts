@@ -1,6 +1,5 @@
 import { ManejarError } from "../classes/manejo-error.class.js";
 import type { Request, Response } from "express";
-import { obtenerIdUsuario } from "./usuarios.controller.js";
 import {
   actualizarExam,
   createExamen,
@@ -37,8 +36,9 @@ export const getExamen = async (req: Request, res: Response) => {
 
 //función para obtener todos los examenes
 export const getExamenes = async (req: Request, res: Response) => {
+  const idUsuario = req.id as string;
   try {
-    const examenes = await ObtenerExamenes(obtenerIdUsuario(req));
+    const examenes = await ObtenerExamenes(idUsuario);
 
     return res.status(200).json({
       ok: true,
@@ -100,7 +100,7 @@ export const actualizarExamen = async (req: Request, res: Response) => {
 
 //función para eliminar un examen
 export const eliminarExamen = async (req: Request, res: Response) => {
-  const idExamen = req.params.id;
+  const idExamen = req.params.id as string;
   const idUsuario = req.id;
   try {
     if (typeof idExamen !== "string" || !idExamen.trim()) {

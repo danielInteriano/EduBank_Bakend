@@ -16,7 +16,6 @@ import {
   validarPreguntas,
 } from "./preguntas.service.js";
 import mongoose, { Mongoose } from "mongoose";
-import { Session } from "node:inspector";
 
 //obtener el listado de examenes
 export const ObtenerExamenes = async (idUsuario: string) => {
@@ -67,7 +66,7 @@ export const validarEncabezado = async (
     _id: encabezadoId,
     usuario_id: usuarioId,
     activo: true,
-  });
+  }).session(sesion);
 
   if (!encabezadoDB) {
     throw new ManejarError("El encabezado no existe, no está activo.", 404);
@@ -95,7 +94,8 @@ export const createExamen = async (
 
     let resultado: InstanceType<typeof Exam> | undefined;
 
-    await sesion.withTransaction(async () => {
+    const examen = await sesion.withTransaction(async () => {
+      //validando el encabezado del examen
       await validarEncabezado(datos.encabezado_id, idUsuario, sesion);
 
       const seleccion = await obtenerPreguntasValidas(
@@ -109,11 +109,12 @@ export const createExamen = async (
         0,
       );
 
+      //validando la descripcion del examen
       if (!datos.descripcion || typeof datos.descripcion !== "string") {
-        throw new ManejarError("La descripcion debe ser un texto.", 401);
+        throw new ManejarError("La descripcion debe ser un texto.", 400);
       }
 
-      const [examen] = await Exam.create(
+      const [examenCreado] = await Exam.create(
         [
           {
             usuario_id: validarId(idUsuario),
@@ -128,28 +129,32 @@ export const createExamen = async (
         { session: sesion },
       );
 
-      await ExamenQuestion.insertMany(
-        seleccion.map((pregunta, indice) => ({
-          examen_id: examen?._id,
-          pregunta_id: pregunta.pregunta_id,
-          numero: indice + 1,
-          orden: pregunta.orden,
-          puntuacion: pregunta.puntuacion,
-        })),
-        { session: sesion },
-      );
+      if (!examenCreado) {
+        throw new ManejarError("No fue posible crear el examen.", 500);
+      }
 
-      resultado = examen;
+      resultado = examenCreado;
+
+      const preguntasExamen = seleccion.map((pregunta, indice) => ({
+        examen_id: examenCreado._id,
+        pregunta_id: pregunta.pregunta_id,
+        numero: indice + 1,
+        orden: pregunta.orden,
+        puntuacion: pregunta.puntuacion,
+      }));
+
+      await ExamenQuestion.insertMany(preguntasExamen, { session: sesion });
+
+      resultado = examenCreado;
 
       if (!resultado) {
         throw new ManejarError("No fue posible crear el examen", 500);
       }
 
-      await sesion.commitTransaction();
       return resultado;
     });
   } catch (error) {
-    catchError();
+    throw error;
   } finally {
     await sesion.endSession();
   }
@@ -168,7 +173,7 @@ export const actualizarExam = async (
   try {
     let resultado: InstanceType<typeof Exam> | undefined;
 
-    sesion.withTransaction(async () => {
+    await sesion.withTransaction(async () => {
       const examen = await Exam.findOne({
         _id: examenId,
         usuario_id: usuarioId,
@@ -178,7 +183,10 @@ export const actualizarExam = async (
         throw new ManejarError("Examen no encontrado", 404);
       }
 
-      if (examen.estado === "archivado" || examen.estado === "aplicado") {
+      if (
+        examen.estado === Estado.ARCHIVADO ||
+        examen.estado === Estado.APLICADO
+      ) {
         throw new ManejarError(
           "No se puede modificar un examen archivado o aplicado",
           409,
@@ -193,6 +201,10 @@ export const actualizarExam = async (
       }
 
       if (datos.descripcion !== undefined) {
+        if (typeof datos.descripcion !== "string") {
+          throw new ManejarError("La descripción debe ser un texto.", 400);
+        }
+
         examen.descripcion = datos.descripcion.trim();
       }
 
@@ -241,39 +253,39 @@ export const actualizarExam = async (
     });
     return resultado;
   } catch (error) {
-    catchError();
+    throw error;
   } finally {
     await sesion.endSession();
   }
 };
 
 //eliminar un examen
-export const deleteExamen = async (idUsuario: string, idExamen: string) => {
-  const usuarioId = validarId(idUsuario);
+export const deleteExamen = async (idExamen: string, idUsuario: string) => {
   const examenId = validarId(idExamen);
+  const usuarioId = validarId(idUsuario);
   try {
-    if (!examenId) {
-      throw new ManejarError("No se encontró el id del examen.", 404);
-    }
-
-    const examen = await Exam.findOne({
-      _id: examenId,
-      usuario_id: usuarioId,
-    });
-
-    if (!examen) {
-      throw new ManejarError("No se encontró el examen.", 404);
-    }
-
-    if (examen.estado === "aplicado") {
-      throw new ManejarError("No se puede eliminar un examen aplicado.", 400);
-    }
-    examen.estado = Estado.ARCHIVADO;
-    await examen.save();
+    const examen = await Exam.findOneAndUpdate(
+      {
+        _id: examenId,
+        usuario_id: usuarioId,
+        estado: {
+          $nin: [Estado.ARCHIVADO, Estado.APLICADO],
+        },
+      },
+      {
+        $set: {
+          estado: Estado.ARCHIVADO,
+        },
+      },
+      {
+        returnDocument: "after",
+        runValidators: true,
+      },
+    );
 
     return examen;
   } catch (error) {
-    catchError();
+    throw error;
   }
 };
 

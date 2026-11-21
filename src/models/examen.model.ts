@@ -10,7 +10,7 @@ const ExamenSchema = new Schema<Examen>(
     },
     encabezado_id: {
       type: Schema.Types.ObjectId,
-      ref: "EncabezadoExamen",
+      ref: "Encabezado",
       required: true,
     },
     titulo: {
@@ -26,10 +26,13 @@ const ExamenSchema = new Schema<Examen>(
     },
     cantidad_preguntas: {
       type: Number,
+      required: true,
       min: 1,
     },
     puntuacion_total: {
       type: Number,
+      required: true,
+      default: 0,
       min: 0,
     },
     descripcion: {
@@ -45,7 +48,8 @@ const ExamenSchema = new Schema<Examen>(
   },
   {
     timestamps: {
-      createdAt: "fecha_generación",
+      createdAt: "fecha_creacion",
+      updatedAt: "fecha_actualizacion",
     },
     toJSON: {
       transform: (_doc, ret) => {

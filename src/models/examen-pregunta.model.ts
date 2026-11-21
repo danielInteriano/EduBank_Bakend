@@ -11,23 +11,18 @@ const ExamenPreguntaSchema = new Schema<ExamenPregunta>(
     },
     pregunta_id: {
       type: Schema.Types.ObjectId,
-      ref: "Question",
+      ref: "Pregunta",
       required: true,
     },
-    numero: {
+    orden: {
       type: Number,
-      required: false,
+      required: true,
       min: 1,
     },
     puntuacion: {
       type: Number,
       required: false,
       min: 0,
-    },
-    orden: {
-      type: Number,
-      required: true,
-      min: 1,
     },
   },
   { timestamps: true },

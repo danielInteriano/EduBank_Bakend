@@ -240,12 +240,3 @@ export const eliminarUsuario = async (req: Request, res: Response) => {
     return res.status(500).json(catchError());
   }
 };
-
-//Método que devuelve el id del usuario autenticado
-export const obtenerIdUsuario = (req: Request): string => {
-  if (!req.id) {
-    throw new ManejarError("Usuario no autenticado", 401);
-  }
-
-  return req.id;
-};

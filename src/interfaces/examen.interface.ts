@@ -13,6 +13,7 @@ export interface PreguntaSeleccionada {
 }
 
 export interface Examen {
+  _id?: Types.ObjectId;
   usuario_id: Types.ObjectId;
   encabezado_id: Types.ObjectId;
   titulo: string;
@@ -21,7 +22,8 @@ export interface Examen {
   puntuacion_total: number;
   descripcion?: string;
   pdf_url?: string;
-  fecha_generacion?: Date;
+  fecha_creacion: Date;
+  fecha_actualizacion: Date;
 }
 
 export interface ExamenPregunta {
@@ -35,7 +37,7 @@ export interface ExamenPregunta {
 export interface DatosCrearExamen {
   encabezado_id: string;
   titulo: string;
-  descripcion: string;
+  descripcion?: string;
   preguntas: PreguntaSeleccionada[];
 }
 
