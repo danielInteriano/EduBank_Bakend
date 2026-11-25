@@ -307,6 +307,6 @@ export const validarExamen = async (
 
     return examen;
   } catch (error) {
-    catchError();
+    throw error;
   }
 };

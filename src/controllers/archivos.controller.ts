@@ -21,7 +21,7 @@ export const subirArchivo = async (req: Request, res: Response) => {
       throw new ManejarError("El id de usuario es obligatorio", 400);
     }
 
-    if (!req.file) {
+    if (!req.files || !req.files.archivo) {
       throw new ManejarError("Faltan datos para procesar el archivo", 400);
     }
 
@@ -31,14 +31,22 @@ export const subirArchivo = async (req: Request, res: Response) => {
       entidad_tipo: req.body.entidad_tipo,
     };
 
-    const archivo = await guardarArchivo(idUsuario, req.file, datos);
+    const file = req.files.archivo;
+
+    if (Array.isArray(file)) {
+      throw new ManejarError("Solo se permite un archivo", 400);
+    }
+
+    const archivo = await guardarArchivo(idUsuario, file, datos);
 
     res.status(200).json({
       ok: true,
       msg: "Archivo subido correctamente",
       archivo,
     });
-  } catch (error) {}
+  } catch (error) {
+    throw error;
+  }
 };
 
 //obtener archivo de una imagen
@@ -50,7 +58,7 @@ export const obtenerArchivos = async (req: Request, res: Response) => {
       throw new ManejarError("Usuario no autenticado", 400);
     }
 
-    const querytipo = req.query;
+    const querytipo = req.params.tipo as string;
 
     if (querytipo !== undefined && typeof querytipo !== "string") {
       throw new ManejarError("Tipo de archivo no válido", 400);
@@ -69,7 +77,7 @@ export const obtenerArchivos = async (req: Request, res: Response) => {
       archivos,
     });
   } catch (error) {
-    catchError();
+    throw error;
   }
 };
 
@@ -114,7 +122,10 @@ export const getArchivoPredeterminado = async (req: Request, res: Response) => {
       ok: true,
       archivo,
     });
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
 };
 
 //eliminar un archivo por su id

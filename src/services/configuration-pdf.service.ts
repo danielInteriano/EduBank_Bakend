@@ -20,7 +20,7 @@ export const obtenerConfiguracionPdf = async (
     const usuario_id = validarId(idUsuario);
     const examen_id = validarId(idExamen);
 
-    validarExamen(usuario_id, examen_id);
+    await validarExamen(usuario_id, examen_id);
 
     const documento = await ConfiguracionExamenPDF.findOne({
       examen_id: examen_id,
@@ -33,7 +33,7 @@ export const obtenerConfiguracionPdf = async (
 
     return documento.configuracion || ConfiguracionPdfDefault;
   } catch (error) {
-    catchError();
+    console.error(error);
   }
 };
 
@@ -77,7 +77,7 @@ export const guardarConfiguracionPdf = async (
     );
     return documento.configuracion ?? datos;
   } catch (error) {
-    catchError();
+    console.error(error);
   }
 };
 
@@ -107,6 +107,6 @@ export const restablecerConfiguracionPDF = async (
 
     return ConfiguracionPdfDefault;
   } catch (error) {
-    catchError();
+    console.error(error);
   }
 };

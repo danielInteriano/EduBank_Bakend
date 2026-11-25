@@ -4,7 +4,6 @@ import type {
   Archivo,
   ArchivoDB,
   TipoArchivo,
-  TipoEntidad,
 } from "../interfaces/archivo.interface.js";
 import { validarId } from "../utils/validar-id.js";
 import { fileTypeFromBuffer } from "file-type";
@@ -13,11 +12,11 @@ import { Types } from "mongoose";
 import { mkdir, writeFile, unlink } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import Archive from "../models/archivo.model.js";
-import { any } from "zod";
+import type { UploadedFile } from "express-fileupload";
 
 const MAX_TAM = 5 * 1024 * 1024;
 const DIRECTORIO = path.resolve("uploads");
-const TIPOS_PERMITIDOS = ["image/jpeg", "image/png", "image/webp"];
+const TIPOS_PERMITIDOS = ["image/jpg", "image/jpeg", "image/png", "image/webp"];
 
 //obtener un archivo por su id
 export const burcarArchivoPorId = async (
@@ -51,7 +50,7 @@ export const burcarArchivoPorId = async (
 //función para guardar un archivo de imagen
 export const guardarArchivo = async (
   idUsuario: string,
-  file: Express.Multer.File,
+  file: UploadedFile,
   datos: ArchivoDB,
 ): Promise<Archivo> => {
   let rutaArchivo: string | undefined;
@@ -67,7 +66,7 @@ export const guardarArchivo = async (
       throw new ManejarError("El archivo excede el tamaño permitido.", 400);
     }
 
-    const tipoReal = await fileTypeFromBuffer(file.buffer);
+    const tipoReal = await fileTypeFromBuffer(file.data);
 
     if (!tipoReal || !TIPOS_PERMITIDOS.includes(tipoReal.mime)) {
       throw new ManejarError("El formato de imagen no está permitido.", 400);
@@ -85,7 +84,11 @@ export const guardarArchivo = async (
     }
 
     const entidadEsperada =
-      datos.tipo === "pregunta" ? "pregunta" : "encabezado";
+      datos.tipo === "pregunta"
+        ? "pregunta"
+        : datos.tipo === "logo"
+          ? "encabezado"
+          : "usuario";
 
     if (datos.entidad_tipo !== entidadEsperada) {
       throw new ManejarError(
@@ -96,9 +99,9 @@ export const guardarArchivo = async (
 
     //creacion de la url del archivo
     await mkdir(DIRECTORIO, { recursive: true });
-    const nombreArchivo = `${randomUUID}.${tipoReal.ext}`;
+    const nombreArchivo = `${randomUUID()}.${tipoReal.ext}`;
     rutaArchivo = path.join(DIRECTORIO, nombreArchivo);
-    await writeFile(rutaArchivo, file.buffer, { flag: "wx" });
+    await writeFile(rutaArchivo, file.data, { flag: "wx" });
     const url = `/uploads/${nombreArchivo}`;
 
     //validacion del id de la entidad enviada
@@ -111,7 +114,7 @@ export const guardarArchivo = async (
       tipo: datos.tipo,
       entidad_id: validarId(datos.entidad_id),
       entidad_tipo: datos.entidad_tipo,
-      nombre_original: path.basename(file.originalname),
+      nombre_original: path.basename(file.name),
       nombre_archivo: nombreArchivo,
       ruta: rutaArchivo,
       url,
@@ -158,7 +161,7 @@ export const eliminarArchivoFisico = async (ruta: string): Promise<void> => {
 //función para listar un conjunto de archivos.
 export const listarArchivos = async (
   idUsuario: string,
-  tipo: TipoArchivo,
+  tipo?: TipoArchivo,
 ): Promise<Archivo[]> => {
   const usuarioId = validarId(idUsuario);
   const tiposPermitidos = ["pregunta", "logo", "predeterminada"];
@@ -166,14 +169,14 @@ export const listarArchivos = async (
     usuario_id: usuarioId,
   };
 
-  if (tipo) {
+  if (tipo !== undefined) {
     if (!tiposPermitidos.includes(tipo)) {
       throw new ManejarError("Tipo de archivo no válido", 400);
     }
     filtro.tipo = tipo;
   }
 
-  return await Archive.find(filtro).sort({ createAt: -1 }).lean();
+  return await Archive.find(filtro).sort({ createdAt: -1 }).lean();
 };
 
 //función para obtener la imagen predeterminada de una entidad
@@ -181,17 +184,13 @@ export const buscarImagenPredeterminada = async (
   idUsuario: string,
 ): Promise<Archivo | null> => {
   const usuarioId = validarId(idUsuario);
-  try {
-    const archivo = await Archive.findOne({
-      usuario_id: usuarioId,
-      tipo: "predeterminada",
-    }).lean();
 
-    return archivo;
-  } catch (error) {
-    catchError();
-    throw error;
-  }
+  const archivo = await Archive.findOne({
+    usuario_id: usuarioId,
+    tipo: "predeterminada",
+  }).lean();
+
+  return archivo;
 };
 
 //función para eliminar un archivo

@@ -34,7 +34,7 @@ app.use(cors(corsOptions));
 /*Configuración para subir archivos*/
 app.use(
   fileUpload({
-    useTempFiles: true,
+    useTempFiles: false,
     tempFileDir: os.tmpdir(),
     createParentPath: true,
     limits: { fileSize: 50 * 1024 * 1024 },

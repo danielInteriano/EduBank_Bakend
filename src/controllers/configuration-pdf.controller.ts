@@ -21,27 +21,28 @@ export const getConfiguracion = async (req: Request, res: Response) => {
       throw new ManejarError("El id del examen es obligatorio", 400);
     }
 
-    const configuracion = obtenerConfiguracionPdf(idUsuario, idExamen);
+    const configuracion = await obtenerConfiguracionPdf(idUsuario, idExamen);
 
     return res.status(200).json({
       ok: true,
       configuracion,
     });
   } catch (error) {
-    catchError();
+    console.error(error);
+    return res.status(500).json(catchError());
   }
 };
 
 //función para guardar la configuracion de un examen
 export const guardarConfiguracion = async (req: Request, res: Response) => {
-  const idUsuario = req.id;
+  const idUsuario = req.id as string;
   const idExamen = req.params.id;
   try {
-    if (typeof idUsuario !== "string" || idUsuario.trim()) {
+    if (typeof idUsuario !== "string" || !idUsuario.trim()) {
       throw new ManejarError("El id de usuario es obligatorio", 400);
     }
 
-    if (typeof idExamen !== "string" || idExamen.trim()) {
+    if (typeof idExamen !== "string" || !idExamen.trim()) {
       throw new ManejarError("El id del examen es obligatorio", 400);
     }
 
@@ -66,21 +67,22 @@ export const guardarConfiguracion = async (req: Request, res: Response) => {
       configuracion,
     });
   } catch (error) {
-    catchError();
+    console.error(error);
+    return res.status(500).json(catchError());
   }
 };
 
 //función para restablecer la configuracion de un examen
 export const restablecerConfiguracion = async (req: Request, res: Response) => {
-  const idUsuario = req.id;
+  const idUsuario = req.id as string;
   const idExamen = req.params.id;
 
   try {
-    if (typeof idUsuario !== "string" || idUsuario.trim()) {
+    if (typeof idUsuario !== "string" || !idUsuario.trim()) {
       throw new ManejarError("El id de usuario es obligatorio", 400);
     }
 
-    if (typeof idExamen !== "string" || idExamen.trim()) {
+    if (typeof idExamen !== "string" || !idExamen.trim()) {
       throw new ManejarError("El id del examen es obligatorio", 400);
     }
 
@@ -95,6 +97,7 @@ export const restablecerConfiguracion = async (req: Request, res: Response) => {
       configuracion,
     });
   } catch (error) {
-    catchError();
+    console.error(error);
+    return res.status(500).json(catchError());
   }
 };
